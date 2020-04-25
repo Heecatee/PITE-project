@@ -1,6 +1,6 @@
 # TASKS FOR STAGE 1
 
-### TASK 1 (Karol & Maria)
+### TASK 1 (Karol & Wiola)
 
 1. Build an Open AI environment:
 
@@ -36,7 +36,7 @@
 
 	>https://www.reddit.com/r/reinforcementlearning/comments/8w7mn2/comparison_selection_of_rl_algorithms_in/
 
-### TASK 3 (Wiola)
+### TASK 3 (Maria)
 1. build Random Map Generator function with parameterized "difficulty level".
 
 	The maps will be a composition of randomly generated fluctuations and obstacles (Noise-like up and down bumps, with the increasing amplitude, and an increasingly diagonal nature. That will make it go from small hills and valleys to a structure simmilar to a Worms Armaggedon map)
