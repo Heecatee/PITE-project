@@ -18,10 +18,6 @@
 
 	>pygame or https://github.com/openai/gym/blob/master/gym/envs/classic_control/rendering.py
 
-2. Wrap it in wrap_env()
-
->https://github.com/tensorflow/agents/blob/master/tf_agents/environments/suite_gym.py
-
 
 ### TASK 2 (Wojtek & Patryk)
 1. Build the Agent on cart-pole environment
