@@ -3,8 +3,6 @@ from torch import nn
 from torch import functional as F
 from hive_vision import HiveNetVision
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 class HiveNet(nn.Module):
 
@@ -20,6 +18,7 @@ class HiveNet(nn.Module):
         x = F.relu(self.hidden1(x))
         x = F.relu(self.output(x))
         return x
+
 
 
 
