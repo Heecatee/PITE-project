@@ -1,11 +1,15 @@
 import torch
 from torch import nn
 from torch import functional as F
+import torchvision.transforms as T
+from PIL import Image
 
 
 class HiveNetVision(nn.Module):
     def __init__(self, frame_height, frame_width, kernel_size, stride,  outputs):
         super(HiveNetVision, self).__init__()
+        self.process_image_input = T.Compose([T.Resize(40, interpolation=Image.CUBIC),
+                                              T.ToTensor()])
         self.conv1 = nn.Conv2d(3, 16, kernel_size=kernel_size, stride=stride)
         self.bn1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=kernel_size, stride=stride)
@@ -18,8 +22,9 @@ class HiveNetVision(nn.Module):
         linear_input_size = conv_w * conv_h * 16
         self.output = nn.Linear(linear_input_size, outputs)
 
-    def forward(self, map_input):
-        x = F.relu(self.bn1(self.conv1(map_input)))
+    def forward(self, map_image):
+        x = self.process_image_input(map_image)
+        x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x_flatten = torch.flatten(x)
         x = self.output(x_flatten)
