@@ -1,5 +1,9 @@
+import collections
 
 VELOCITY_COEFFICIENT = 0.5
+
+Threshold = collections.namedtuple('Threshold', 'position velocity')
+Cluster = collections.namedtuple('AgentsPerThreshold', 'color threshold agents')
 
 
 # get angular velocity proportional to distance from threshold
