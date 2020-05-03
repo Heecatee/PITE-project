@@ -10,7 +10,7 @@ class HiveNet(nn.Module):
         super(HiveNet, self).__init__()
         self.vision = HiveNetVision(frame_height, frame_width, kernel_size, stride, outputs=32)
         self.hidden1 = nn.Linear(32+num_of_clusters, 64)
-        self.output = nn.Linear(64, num_of_clusters)
+        self.output = nn.Linear(64, 2*num_of_clusters)
 
     def forward(self, map_input, thresholds):
         x = self.vision(map_input)
