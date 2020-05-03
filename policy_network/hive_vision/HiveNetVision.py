@@ -28,7 +28,7 @@ class HiveNetVision(nn.Module):
 
     def forward(self, map_image):
         x = self.process_image_input(map_image)
-        self.map_history = torch.cat((self.map_buffer[1:], x), dim=0)
+        self.map_history = torch.cat((self.map_history[1:], x), dim=0)
         x = self.map_history
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
