@@ -56,3 +56,13 @@ def create_goal_object(position_x):
     shape.elasticity = ELASTICITY
     shape.friction = FRICTION
     return shape
+
+
+def create_map_segments(map_segments, space):
+    segments = []
+    for (a, b) in map_segments:
+        segment = pymunk.Segment(space.static_body, a, b, 1)
+        segment.elasticity = ELASTICITY
+        segment.friction = FRICTION
+        segments.append(segment)
+    return segments

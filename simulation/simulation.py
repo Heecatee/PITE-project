@@ -6,6 +6,7 @@ from pygame.locals import *
 from pygame.color import *
 
 import pymunk
+import pymunk.autogeometry
 import pymunk.pygame_util
 
 import utils.simulation_utils as utils
@@ -24,12 +25,18 @@ class SwarmBallSimulation(object):
         self.debug_mode = False
 
         self._thresholds = []
+        self._map_segments = [
+            ((0, 100), (100, 100)),
+            ((100, 100), (200, 200)),
+            ((200, 200), (1280, 300))
+        ]
         self._enemy_position = 0
 
         # simulation objects
         self._clusters = []
         self._goal_object = None
         self._giant_fry = None
+        self._map = None
 
         # simulation flow parameters
         self._simulation_is_running = True
@@ -74,11 +81,8 @@ class SwarmBallSimulation(object):
             self._redraw()
 
     def _init_static_scenery(self):
-        static_body = self._space.static_body
-        static_line = pymunk.Segment(static_body, (0, 360.0), (1280, 360.0), 0.0)
-        static_line.elasticity = pymunk_utils.ELASTICITY
-        static_line.friction = pymunk_utils.FRICTION
-        self._space.add(static_line)
+        self._map = pymunk_utils.create_map_segments(self._map_segments, self._space)
+        self._space.add(self._map)
 
     def _init_simulation_objects(self):
         self._clusters = pymunk_utils.create_clusters(self.number_of_clusters, self.number_of_agents_per_cluster)
