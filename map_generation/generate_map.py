@@ -3,8 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from enum import Enum
 import numpy as np
-from scipy.interpolate import BSpline, splprep, splev
-import copy
+from scipy.interpolate import splprep, splev
 
 
 class Point:
@@ -15,7 +14,7 @@ class Point:
     def __str__(self):
         return '({x},{y})'.format(x=self.x, y=self.y)
 
-    def get_point(self):
+    def getPoint(self):
         point = (self.x, self.y)
         return point
 
@@ -26,14 +25,17 @@ class Point:
 class Map:
     def __init__(self, starting_point, resolution=(1280, 720), seed=None):
         self.points = []
+        self.segments = []
         self.append(starting_point)
         self.resolution = resolution
         self.seed = seed
 
     def set_with_arrays(self, x_array, y_array):
         self.points.clear()
+        self.segments.clear()
         data = zip(x_array, y_array)
         self.points = [Point(x, y) for x, y in data]
+        self.segments = [(self.points[i-1].getPoint(), self.points[i].getPoint()) for i in range(1, len(self.points))]
 
     def append(self, point):
         self.points.append(point)
@@ -41,9 +43,12 @@ class Map:
     def __getitem__(self, key):
         return self.points[key]
 
-    def get_data(self):
-        data = [(point.x, point.y) for point in self.points]
+    def get_data_as_points(self):
+        data = [point.getPoint() for point in self.points]
         return data
+
+    def get_data_as_segments(self):
+        return self.segments
 
     def X(self):
         xs = [point.x for point in self.points]
@@ -219,9 +224,9 @@ def generate_map(seed=None, diff_level=Difficulty.PATHETIC, starting_y=None, res
     # return game_map.get_data(), seed
 
 # USE EXAMPLES
-map1, seed1 = generate_map()
+# map1, seed1 = generate_map()
 # map1.save_to_file()
-map2, seed2 = generate_map(diff_level = Difficulty.REALLY_HARD)
+# map2, seed2 = generate_map(diff_level = Difficulty.REALLY_HARD)
 # map2.save_to_file('test_really_hard.png')
 # data3, seed3 = generate_map(diff_level = Difficulty.EASY)
 # save_map_to_file(data3, 'test_EASY.png')
@@ -231,5 +236,3 @@ map2, seed2 = generate_map(diff_level = Difficulty.REALLY_HARD)
 # data, seed = generate_map(seed, diff_level = Difficulty.HARD, starting_y = 120)
 # save_map_to_file(data, 'copy_hard.png')
 
-map1.show_map(fill=True)
-map2.show_map()
