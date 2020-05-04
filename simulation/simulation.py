@@ -119,12 +119,17 @@ class SwarmBallSimulation(object):
         if self.debug_mode:
             self._space.debug_draw(self._draw_options)
             pygame_utils.draw_thresholds(self._screen, self._clusters)
-            pygame_utils.draw_line(self._screen, self._enemy_position)
+        else:
+            pygame_utils.draw_clusters(self._screen, self._clusters)
+            pygame_utils.draw_enemy(self._screen, self._enemy_position)
+            pygame_utils.draw_map(self._screen, self._map_segments)
+            pygame_utils.draw_goal_object(self._screen, self._goal_object)
+            pass
         self._clock.tick(50)
         pygame.display.flip()
 
 
 if __name__ == '__main__':
     swarmBallSimulation = SwarmBallSimulation()
-    swarmBallSimulation.debug_mode = True
+    # swarmBallSimulation.debug_mode = True
     swarmBallSimulation.init_simulation()

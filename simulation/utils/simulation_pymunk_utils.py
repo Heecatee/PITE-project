@@ -10,7 +10,10 @@ Color = collections.namedtuple('RGB', 'r g b')
 
 ELASTICITY = 0
 FRICTION = 2
-COLLISION_TYPE_NONE = 0
+AGENTS_RADIUS = 12
+AGENTS_MASS = 10
+GOAL_OBJECT_MASS = 10
+
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
@@ -34,8 +37,8 @@ def create_agent(position_x, color, max_distance_from_threshold=100):
     min_pos = position_x - max_distance_from_threshold
     max_pos = position_x + max_distance_from_threshold
 
-    radius = 12
-    mass = 10
+    radius = AGENTS_RADIUS
+    mass = AGENTS_MASS
     body = pymunk.Body(mass, moment=pymunk.moment_for_circle(mass, inner_radius=0, outer_radius=radius))
     body.position = random.randint(min_pos, max_pos), 400
     shape = pymunk.Circle(body, radius)
@@ -47,7 +50,7 @@ def create_agent(position_x, color, max_distance_from_threshold=100):
 
 
 def create_goal_object(position_x):
-    mass = 10
+    mass = GOAL_OBJECT_MASS
     size = (30, 30)
     inertia = pymunk.moment_for_box(mass, size)
     body = pymunk.Body(mass, inertia)
