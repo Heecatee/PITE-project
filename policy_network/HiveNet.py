@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch import functional as F
+from torch.nn import functional as F
 from hive_vision import HiveNetVision
 
 
@@ -20,10 +20,12 @@ class HiveNet(nn.Module):
         x = torch.cat((x, thresholds), dim=1)
 
         actor_x = F.relu(self.policy_hidden1(x))
-        action_probabilities = F.relu(self.policy_output(actor_x))
+        actor_x = F.relu(self.policy_output(actor_x))
+        action_probabilities = F.softmax(actor_x)
 
         critic_x = F.relu(self.value_hidden1(x))
-        values = F.relu(self.value_output(critic_x))
+        critic_x = F.relu(self.value_output(critic_x))
+        values = F.tanh(critic_x)
         return action_probabilities, values
 
 

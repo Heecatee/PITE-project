@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch import functional as F
+from torch.nn import functional as F
 import torchvision.transforms as T
 from PIL import Image
 
@@ -19,11 +19,11 @@ class HiveNetVision(nn.Module):
         self.bn2 = nn.BatchNorm2d(32)
 
         def conv2d_size_out(size, kernel_size=kernel_size, stride=stride):
-            return (size - (kernel_size - 1) - 1) // stride + 1
+            return (size - kernel_size) // stride + 1
 
         convw = conv2d_size_out(conv2d_size_out(frame_width))
         convh = conv2d_size_out(conv2d_size_out(frame_height))
-        linear_input_size = convw * convh * 16
+        linear_input_size = convw * convh * 32
         self.output = nn.Linear(linear_input_size, outputs)
 
     def forward(self, map_image):
