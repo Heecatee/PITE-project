@@ -10,9 +10,8 @@ class HiveNetVision(nn.Module):
     def __init__(self, frame_height, frame_width, kernel_size, stride, outputs, starting_frame):
         super(HiveNetVision, self).__init__()
         self.process_image_input = T.Compose([T.Grayscale(),
-                                              T.Resize(40, interpolation=Image.CUBIC),
-                                              T.ToTensor()])
-        self.map_history = torch.Tensor([starting_frame, starting_frame, starting_frame])
+                                              T.Resize(40, interpolation=Image.CUBIC)])
+        self.map_history = [starting_frame, starting_frame, starting_frame]
         self.conv1 = nn.Conv2d(3, 16, kernel_size=kernel_size, stride=stride)
         self.bn1 = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size=kernel_size, stride=stride)
@@ -28,7 +27,8 @@ class HiveNetVision(nn.Module):
 
     def forward(self, map_image):
         x = self.process_image_input(map_image)
-        self.map_history = torch.cat((self.map_history[1:], x), dim=0)
+        self.map_history = [*self.map_history[1:], x]
+        x = torch.Tensor(self.map_history)
         x = self.map_history
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
