@@ -7,10 +7,10 @@ from PIL import Image
 
 class HiveNetVision(nn.Module):
 
-    def __init__(self, frame_height, frame_width, kernel_size, stride, outputs, starting_frame):
+    def __init__(self, kernel_size, stride, outputs, starting_frame):
         super(HiveNetVision, self).__init__()
         self.process_image_input = T.Compose([T.Grayscale(),
-                                              T.Resize(40, interpolation=Image.CUBIC)])
+                                              T.Resize(60, interpolation=Image.CUBIC)])
         self.map_history = [starting_frame, starting_frame, starting_frame]
         self.conv1 = nn.Conv2d(3, 16, kernel_size=kernel_size, stride=stride)
         self.bn1 = nn.BatchNorm2d(16)
@@ -20,8 +20,8 @@ class HiveNetVision(nn.Module):
         def conv2d_size_out(size, kernel_size=kernel_size, stride=stride):
             return (size - kernel_size) // stride + 1
 
-        convw = conv2d_size_out(conv2d_size_out(frame_width))
-        convh = conv2d_size_out(conv2d_size_out(frame_height))
+        convw = conv2d_size_out(conv2d_size_out(60))
+        convh = conv2d_size_out(conv2d_size_out(60))
         linear_input_size = convw * convh * 32
         self.output = nn.Linear(linear_input_size, outputs)
 
@@ -29,7 +29,6 @@ class HiveNetVision(nn.Module):
         x = self.process_image_input(map_image)
         self.map_history = [*self.map_history[1:], x]
         x = torch.Tensor(self.map_history)
-        x = self.map_history
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x_flatten = torch.flatten(x)
