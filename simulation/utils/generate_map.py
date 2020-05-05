@@ -1,12 +1,11 @@
 import random
 import math
-import matplotlib
-matplotlib.use('ps')
 import matplotlib.pyplot as plt
 from enum import Enum
 import numpy as np
 from scipy.interpolate import BSpline, splprep, splev
 import copy
+
 
 class Difficulty(Enum):
     """Enum for Difficulty level"""
@@ -18,54 +17,54 @@ class Difficulty(Enum):
     WTF = 5
 
 
-def intersect(A,B,C,D):
+def intersect(A, B, C, D):
     """Helper of is_crossing function
     Returns True if line segments AB and CD intersect"""
-    ccw = lambda A,B,C: (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
-    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+    ccw = lambda A, B, C: (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
+    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 
-def is_crossing(X,Y,i,j):
+def is_crossing(X, Y, i, j):
     """Function that checks if two lines ((X[i],Y[i]), (X[i+1], Y[i+1])), ((X[j],Y[j]), (X[j+1],Y[j+1])) intersect"""
     if i == j:
         return False
-    try:    
-        return intersect((X[i], Y[i]), (X[i+1], Y[i+1]), (X[j], Y[j]), (X[j+1], Y[j+1]))
+    try:
+        return intersect((X[i], Y[i]), (X[i + 1], Y[i + 1]), (X[j], Y[j]), (X[j + 1], Y[j + 1]))
     except IndexError:
         print(f'i = {i}, j = {j}, size = {len(X)}')
 
 
 def next_point(x_prev, y_prev, step, alpha, y_res):
     """Function returning next random point for the generalized map"""
-    y_range = 2 * step * math.tan(alpha/2)
-    ymin = y_prev - y_range/2
+    y_range = 2 * step * math.tan(alpha / 2)
+    ymin = y_prev - y_range / 2
     ymin = ymin if ymin >= 0 else 0
-    ymax = y_prev + y_range/2
+    ymax = y_prev + y_range / 2
     ymax = ymax if ymax < y_res - 20 else y_res - 20
     p = random.random()
     if p >= 0.3:
         x = x_prev + step
     else:
         x = x_prev - step if x_prev > step else x_prev + step
-    y = random.uniform(ymin,ymax)
-    return x,y
+    y = random.uniform(ymin, ymax)
+    return x, y
 
 
-def exterminate_loops(Xold, Yold, step, y_res, ran = 40):
+def exterminate_loops(Xold, Yold, step, y_res, ran=40):
     """Function that gets rid of most of the loops in map so as to make it a little less crazy"""
     X, Y = copy.deepcopy(Xold), copy.deepcopy(Yold)
     i = 0
     size = len(X)
     while i < size - 1:
-        i = size - 2 if i>= size -1 else i
-        left_limit = i - ran if i>=ran else 0
+        i = size - 2 if i >= size - 1 else i
+        left_limit = i - ran if i >= ran else 0
         right_limit = i + ran if i + ran < size else size - 2
-        for j in range(left_limit+1, right_limit):
+        for j in range(left_limit + 1, right_limit):
             j = size - 2 if j >= size - 1 else j
-            if is_crossing(X,Y,i,j):
-                del X[i+1]
-                del Y[i+1]
-                x,y = next_point(X[size-2], Y[size-2], step, math.pi * 3/4, y_res)
+            if is_crossing(X, Y, i, j):
+                del X[i + 1]
+                del Y[i + 1]
+                x, y = next_point(X[size - 2], Y[size - 2], step, math.pi * 3 / 4, y_res)
                 X.append(x)
                 Y.append(y)
         i += 1
@@ -79,24 +78,25 @@ def prepare_map(x_res, y_res, step, angle_range, starting_y):
     X = []
     Y = []
     x = 0
-    y = random.randrange(y_res/4, y_res * 3/5) if not starting_y else starting_y
+    y = random.randrange(y_res / 4, y_res * 3 / 5) if not starting_y else starting_y
     X.append(x)
     Y.append(y)
 
     while x < x_res:
-        x, y = next_point(x, y, step, angle_range, y_res)  
+        x, y = next_point(x, y, step, angle_range, y_res)
         X.append(x)
         Y.append(y)
 
-    X, Y = exterminate_loops(X,Y, step, y_res)
-    X, Y = exterminate_loops(X,Y, step, y_res)
-    X, Y = exterminate_loops(X,Y, step, y_res)
-    
+    X, Y = exterminate_loops(X, Y, step, y_res)
+    X, Y = exterminate_loops(X, Y, step, y_res)
+    X, Y = exterminate_loops(X, Y, step, y_res)
+
     tck, u = splprep([X, Y], s=0)
-    x_array = np.linspace(0,1, x_res)
+    x_array = np.linspace(0, 1, x_res)
     x_array, y_array = splev(x_array, tck, der=0)
 
     return x_array, y_array
+
 
 def get_road(diff_level, starting_y, resolution):
     """Function that prepares parameters according to difficulty level of map
@@ -109,41 +109,40 @@ def get_road(diff_level, starting_y, resolution):
     if diff_level == Difficulty.PATHETIC:
         x = np.array([0, x_res])
         x_array = np.linspace(x.min(), x.max(), x_res)
-        y_start = y_res/2 if not starting_y else starting_y
+        y_start = y_res / 2 if not starting_y else starting_y
         y_array = np.array([y_start for _ in range(len(x_array))])
 
     elif diff_level == Difficulty.EASY:
-        step = x_res/10
-        angle_range = math.pi/4
+        step = x_res / 10
+        angle_range = math.pi / 4
         x_array, y_array = prepare_map(x_res, y_res, step, angle_range, starting_y)
 
     elif diff_level == Difficulty.MEDIUM:
-        step = x_res/20
-        angle_range = math.pi * 3/4     
+        step = x_res / 20
+        angle_range = math.pi * 3 / 4
         x_array, y_array = prepare_map(x_res, y_res, step, angle_range, starting_y)
 
     elif diff_level == Difficulty.HARD:
-        step = x_res/100
-        angle_range = 15 * math.pi / 18     
+        step = x_res / 100
+        angle_range = 15 * math.pi / 18
         x_array, y_array = prepare_map(x_res, y_res, step, angle_range, starting_y)
-    
+
     elif diff_level == Difficulty.REALLY_HARD:
-        step = x_res/120
-        angle_range = 16 * math.pi / 18     
+        step = x_res / 120
+        angle_range = 16 * math.pi / 18
         x_array, y_array = prepare_map(x_res, y_res, step, angle_range, starting_y)
 
     elif diff_level == Difficulty.WTF:
-        step = x_res/150
-        angle_range = 16 * math.pi / 18     
+        step = x_res / 150
+        angle_range = 16 * math.pi / 18
         x_array, y_array = prepare_map(x_res, y_res, step, angle_range, starting_y)
 
     return x_array, y_array
 
 
-
-def generate_map(seed = None, diff_level = Difficulty.PATHETIC, starting_y = None, resolution = (1280,720)):
+def generate_map(seed=None, diff_level=Difficulty.PATHETIC, x_offset=0, starting_y=None, resolution=(1280, 720)):
     """Function to generate map
-    parameters - map seed generated before, difficulty level from Difficulty Enum, starting y position, resolution 
+    parameters - map seed generated before, difficulty level from Difficulty Enum, starting y position, resolution
     returns data in format [(x1,y1), (x2,y2), .....] as points coordinates
     """
     if seed:
@@ -152,35 +151,22 @@ def generate_map(seed = None, diff_level = Difficulty.PATHETIC, starting_y = Non
         seed = random.getstate()
 
     X, Y = get_road(diff_level, starting_y, resolution)
-
-    data = zip(X,Y)
-    data = [(x,y) for x,y in data]
+    X += x_offset
+    data = np.vstack((X, Y)).T
     return data, seed
 
 
-def save_map_to_file(data, filename = 'test_map.png', resolution = (1280,720), fill = False):
-    'Saves map to chosen file with optional filling to make it prettier'
-    X = [point[0] for point in data]
-    Y = [point[1] for point in data]
+def save_map_to_file(data, filename='test_map.png', resolution=(1280, 720), fill=False):
+    """
+    Saves map to chosen file with optional filling to make it prettier
+    """
+    X, Y = data.T
 
     plt.clf()
-    plt.figure(figsize=(resolution[0]/100, resolution[1]/100))
-    plt.xlim(0.0,resolution[0])
-    plt.ylim(0.0,resolution[1])
+    plt.figure(figsize=(resolution[0] / 100, resolution[1] / 100))
+    plt.xlim(0.0, resolution[0])
+    plt.ylim(0.0, resolution[1])
     if fill:
-        plt.fill_between(X,Y)
+        plt.fill_between(X, Y)
     plt.plot(X, Y)
-    plt.savefig(filename, dpi = 100)
-
-        
-#USE EXAMPLES
-# data1, seed1 = generate_map()
-# save_map_to_file(data1)
-# data2, seed2 = generate_map(diff_level = Difficulty.REALLY_HARD)
-# save_map_to_file(data2, 'test_really_hard.png')
-# data, seed = generate_map(diff_level = Difficulty.HARD, starting_y = 20)
-# save_map_to_file(data, 'test.png')
-# save_map_to_file(data, 'filled.png', fill = True)
-# data, seed = generate_map(seed, diff_level = Difficulty.HARD, starting_y = 20)
-# save_map_to_file(data, 'copy.png')
-
+    plt.savefig(filename, dpi=100)
