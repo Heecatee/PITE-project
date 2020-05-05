@@ -16,28 +16,28 @@ def draw_thresholds(screen, clusters):
         pygame.draw.lines(screen, cluster.color, False, points)
 
 
-def draw_enemy(screen, position):
-    points = [(position, 0), (position, SCREEN_HEIGHT)]
+def draw_enemy(screen, position, offset):
+    points = [(position+offset[0], 0), (position+offset[0], SCREEN_HEIGHT)]
     pygame.draw.lines(screen, THECOLORS["red"], False, points)
 
 
-def draw_clusters(screen, clusters):
+def draw_clusters(screen, clusters, offset):
     for cluster in clusters:
         for agent in cluster.agents:
             position = pymunk.pygame_util.to_pygame(agent.body.position, screen)
-            pygame.draw.circle(screen, agent.color, position, int(agent.radius))
+            pygame.draw.circle(screen, agent.color, (position[0]+int(offset[0]), position[1]), int(agent.radius))
 
 
-def draw_map(screen, map_segments):
-    for (p1, p2) in map_segments:
-        p1_translated = pymunk.pygame_util.to_pygame(p1, screen)
-        p2_translated = pymunk.pygame_util.to_pygame(p2, screen)
-        pygame.draw.aaline(screen, MAP_COLOR, p1_translated, p2_translated)
+def draw_map(screen, map_segment, offset):
+    for fragment in map_segment:
+        p1_translated = pymunk.pygame_util.to_pygame(fragment.a, screen)
+        p2_translated = pymunk.pygame_util.to_pygame(fragment.b, screen)
+        pygame.draw.line(screen, MAP_COLOR, p1_translated+pymunk.Vec2d(offset), p2_translated+pymunk.Vec2d(offset), 4)
 
 
-def draw_goal_object(screen, goal_object):
+def draw_goal_object(screen, goal_object, position):
     body = goal_object.body
-    points = [point.rotated(body.angle) + body.position for point in goal_object.get_vertices()]
+    points = [point.rotated(body.angle) + pymunk.Vec2d(position, body.position[1]) for point in goal_object.get_vertices()]
     points.append(points[0])
     ps = [pymunk.pygame_util.to_pygame(point, screen) for point in points]
     pygame.draw.polygon(screen, GOAL_OBJECT_COLOR, ps)
