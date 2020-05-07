@@ -5,19 +5,20 @@ from pygame.color import *
 import pymunk
 import pymunk.pygame_util
 
-import utils.simulation_utils as utils
-import utils.simulation_pymunk_utils as pymunk_utils
-import utils.simulation_pygame_utils as pygame_utils
-from utils.simulation_pymunk_utils import SCREEN_HEIGHT, SCREEN_WIDTH
+import simulation.utils.simulation_utils as utils
+import simulation.utils.simulation_pymunk_utils as pymunk_utils
+import simulation.utils.simulation_pygame_utils as pygame_utils
+from simulation.utils.simulation_pymunk_utils import SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class SwarmBallSimulation(object):
-    def __init__(self):
+    def __init__(self, thresh_pos=[200, 500, 800], bots_per_thresh=10, obj_dim=[100, 100], 
+    debug_mode=False, gravity=[0.0, -900], dt=1/60, steps_per_frame=1):
         # main simulation parameters
-        self.thresholds_positions_x = [200, 500, 800]
-        self.number_of_agents_per_thresholds = 10
-        self.goal_object_frame_dim = [100, 100]
-        self.debug_mode = False
+        self.thresholds_positions_x = thresh_pos
+        self.number_of_agents_per_thresholds = bots_per_thresh
+        self.goal_object_frame_dim = obj_dim
+        self.debug_mode = debug_mode
 
         # simulation objects
         self._clusters = []
@@ -30,9 +31,9 @@ class SwarmBallSimulation(object):
 
         # pymunk constants
         self._space = pymunk.Space()
-        self._space.gravity = [0.0, -900]
-        self._dt = 1 / 60.0
-        self._physics_steps_per_frame = 1
+        self._space.gravity = gravity
+        self._dt = dt
+        self._physics_steps_per_frame = steps_per_frame
 
         # pygame constants
         self._screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -43,14 +44,18 @@ class SwarmBallSimulation(object):
         self._init_static_scenery()
         self._init_simulation_objects()
 
+    def step(self):
+        # Few steps per frame to keep simulation smooth
+        for x in range(self._physics_steps_per_frame):
+            self._space.step(self._dt)
+        self._process_events()
+        self._update_simulation_objects()
+
     def run(self):
         while self._simulation_is_running:
-            # Few steps per frame to keep simulation smooth
-            for x in range(self._physics_steps_per_frame):
-                self._space.step(self._dt)
-            self._process_events()
-            self._update_simulation_objects()
+            self.step()
             self._redraw()
+            
 
     def request_space_near_goal_object(self):
         # it will be done :D no worries

@@ -1,6 +1,6 @@
 import pygame
 
-from utils.simulation_pymunk_utils import SCREEN_HEIGHT
+from simulation.utils.simulation_pymunk_utils import SCREEN_HEIGHT
 
 
 def draw_thresholds(screen, clusters):
