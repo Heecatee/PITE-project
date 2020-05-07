@@ -2,11 +2,11 @@ import collections
 import random
 
 import numpy
-import pygame
 import pymunk
 
+import simulation_utils as utils
+
 Color = collections.namedtuple('RGB', 'r g b')
-Cluster = collections.namedtuple('AgentsPerThreshold', 'threshold_position agents color')
 
 ELASTICITY = 0
 FRICTION = 2
@@ -15,14 +15,18 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 
-def create_clusters(thresholds_positions_x, number_of_agents_per_threshold):
+def create_clusters(number_of_clusters, number_of_agents_per_threshold):
     clusters = []
-    for pos in thresholds_positions_x:
+    for _ in range(number_of_clusters):
         color = list(numpy.random.random(size=3) * 256)
-        cluster = Cluster(pos, [], color)
+        threshold = utils.Threshold(position=random.randint(0, SCREEN_WIDTH), velocity=0)
+        cluster = utils.Cluster(color, threshold, agents=[])
+
         for _ in range(number_of_agents_per_threshold):
-            cluster.agents.append(create_agent(pos, color))
+            cluster.agents.append(create_agent(threshold.position, color))
+
         clusters.append(cluster)
+
     return clusters
 
 
@@ -42,19 +46,9 @@ def create_agent(position_x, color, max_distance_from_threshold=100):
     return shape
 
 
-def create_threshold(position_x, color):
-    body = pymunk.Body(body_type=pymunk.Body.STATIC)
-    shape = pymunk.Segment(body, (position_x, 0), (position_x, SCREEN_HEIGHT), 1)
-    shape.elasticity = ELASTICITY
-    shape.friction = FRICTION
-    shape.collision_type = COLLISION_TYPE_NONE
-    shape.color = color
-    return shape
-
-
 def create_goal_object(position_x):
     mass = 10
-    size = (40, 40)
+    size = (30, 30)
     inertia = pymunk.moment_for_box(mass, size)
     body = pymunk.Body(mass, inertia)
     body.position = position_x, 380
@@ -62,3 +56,13 @@ def create_goal_object(position_x):
     shape.elasticity = ELASTICITY
     shape.friction = FRICTION
     return shape
+
+
+def create_map_segments(map_segments, space):
+    segments = []
+    for (a, b) in map_segments:
+        segment = pymunk.Segment(space.static_body, a, b, 1)
+        segment.elasticity = ELASTICITY
+        segment.friction = FRICTION
+        segments.append(segment)
+    return segments
