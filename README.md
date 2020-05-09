@@ -16,4 +16,4 @@ We will be working on a simplified problem using only **two dimensions**. Instea
 
 ### The hive mind
 
-The steering is going to be fully automated with **artificial intelligence**, adapting to any environment you make it run on. It will not only be forced to make the balls move the object, but to do it as quickly as possible. This will be accomplished by chasing the ball with a **Death Ray**, which will increase in speed as the algorithm becomes more effective.
+The steering is going to be fully automated with **artificial intelligence**, adapting to any environment you make it run on. It will not only be forced to make the balls move the object, but to do it as quickly as possible. This will be accomplished by chasing the ball with a **Death Ray**, which will increase in speed as the algorithm becomes more effective. 
