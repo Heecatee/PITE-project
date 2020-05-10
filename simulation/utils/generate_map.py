@@ -239,14 +239,3 @@ def generate_map(seed=None, diff_level=Difficulty.PATHETIC, x_offset=0, y_offset
     game_map = prepare_map(resolution, step, angle_range, x_offset, y_offset, seed)
 
     return game_map
-
-
-
-# USE EXAMPLES
-# map1 = generate_map()
-# map1.save_to_file()
-# map2 = generate_map(diff_level = Difficulty.REALLY_HARD)
-# map3 = generate_map(diff_level = Difficulty.EASY)
-# map4 = generate_map(diff_level = Difficulty.HARD, y_offset = 120)
-# map2.save_to_file()
-# map5 = generate_map(map4.get_seed(), diff_level = Difficulty.HARD, x_offset= 1000, y_offset = 120)
