@@ -156,7 +156,7 @@ if __name__ == '__main__':
                          learning_rate=0.001,
                          clip_size=0.2)
     best_result = 0
-    in_witch_episode = 0
+    in_which_episode = 0
     for episode in range(NUM_OF_EPISODES):
         if episode % RENDER_INTERVAL == 0:
             trainer.render = True
@@ -166,6 +166,6 @@ if __name__ == '__main__':
         curr_result, _ = trainer.train()
         if curr_result > best_result:
             best_result = curr_result
-            in_witch_episode = episode
+            in_which_episode = episode
         print(
-            f'{episode}. {curr_result}\tBest: {best_result} in episode {in_witch_episode}')
+            f'{episode}. {curr_result}\tBest: {best_result} in episode {in_which_episode}')
