@@ -1,13 +1,10 @@
-import collections
 import random
-
 import numpy
 import pymunk
 
 import utils.simulation_utils as utils
 import utils.generate_map as gen
 
-Color = collections.namedtuple('RGB', 'r g b')
 
 ELASTICITY = 0.3
 FRICTION = 10

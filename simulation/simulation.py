@@ -139,7 +139,8 @@ class SwarmBallSimulation(object):
                                                                              segment_size=self._map_segment_size,
                                                                              map_width=self.map_width)
             self._space.remove(self._map[0])
-            self._map = [*self._map[1:], map_segment]
+            self._map.pop(0)
+            self._map.append(map_segment)
             self._map_middle_right_boundary = self._map_beginning
             self._map_beginning = segment_end_point
             self._space.add(self._map[-1])
@@ -165,7 +166,6 @@ class SwarmBallSimulation(object):
             for map_segment in self._map:
                 pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
             pygame_utils.draw_goal_object(self._screen, self._goal_object,  self.initial_object_position)
-            pass
         self._clock.tick(self.ticks_per_render_frame)
         pygame.display.flip()
 

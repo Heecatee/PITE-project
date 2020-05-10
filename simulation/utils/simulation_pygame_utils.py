@@ -3,10 +3,8 @@ import pymunk
 
 from pygame.color import THECOLORS
 
-from utils.simulation_pymunk_utils import Color
-
-GOAL_OBJECT_COLOR = BLUE = Color(51, 153, 255)
-MAP_COLOR = BLACK = Color(54, 54, 54)
+GOAL_OBJECT_COLOR = THECOLORS["blue"]
+MAP_COLOR = THECOLORS["black"]
 
 
 def draw_thresholds(screen, clusters, screen_size):
