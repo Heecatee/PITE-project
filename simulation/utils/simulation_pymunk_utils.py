@@ -11,37 +11,36 @@ Color = collections.namedtuple('RGB', 'r g b')
 
 ELASTICITY = 0.3
 FRICTION = 10
-AGENTS_RADIUS = 4
-AGENTS_MASS = 30
+BOTS_RADIUS = 4
+BOTS_MASS = 30
+GOAL_OBJECT_SIZE = (20, 20)
 GOAL_OBJECT_MASS = 3
-
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 540
+GOAL_OBJECT_FRICTION = 0.01
 
 
-def create_clusters(number_of_clusters, number_of_agents_per_threshold):
+def create_clusters(number_of_clusters, screen_size, number_of_bots_per_threshold):
     clusters = []
     for _ in range(number_of_clusters):
         color = list(numpy.random.random(size=3) * 256)
-        threshold = utils.Threshold(position=random.randint(0, SCREEN_WIDTH), velocity=0)
-        cluster = utils.Cluster(color, threshold, agents=[])
+        threshold = utils.Threshold(position=random.randint(0, screen_size[0]), velocity=0)
+        cluster = utils.Cluster(color, threshold, bots=[])
 
-        for _ in range(number_of_agents_per_threshold):
-            cluster.agents.append(create_agent(threshold.position, color))
+        for _ in range(number_of_bots_per_threshold):
+            cluster.bots.append(create_bot(threshold.position, color, screen_size))
 
         clusters.append(cluster)
 
     return clusters
 
 
-def create_agent(position_x, color, max_distance_from_threshold=100):
+def create_bot(position_x, color, screen_size, max_distance_from_threshold=100):
     min_pos = position_x - max_distance_from_threshold
     max_pos = position_x + max_distance_from_threshold
 
-    radius = AGENTS_RADIUS
-    mass = AGENTS_MASS
+    radius = BOTS_RADIUS
+    mass = BOTS_MASS
     body = pymunk.Body(mass, moment=pymunk.moment_for_circle(mass, inner_radius=0, outer_radius=radius))
-    body.position = random.randint(min_pos, max_pos), 400
+    body.position = (random.randint(min_pos, max_pos), screen_size[1])
     shape = pymunk.Circle(body, radius)
     shape.color = color
     shape.elasticity = ELASTICITY
@@ -50,25 +49,25 @@ def create_agent(position_x, color, max_distance_from_threshold=100):
     return shape
 
 
-def create_goal_object(position_x):
+def create_goal_object(position):
     mass = GOAL_OBJECT_MASS
-    size = (30, 30)
+    size = GOAL_OBJECT_SIZE
     inertia = pymunk.moment_for_box(mass, size)
     body = pymunk.Body(mass, inertia)
-    body.position = position_x, 380
+    body.position = position
     shape = pymunk.Poly.create_box(body, size)
     shape.elasticity = ELASTICITY
-    shape.friction = FRICTION-9.99
+    shape.friction = GOAL_OBJECT_FRICTION
     return shape
 
 
-def create_map_segment(difficulty, space, starting_point, segment_size):
-    map_fragments, _ = gen.generate_map(diff_level=difficulty, x_offset=starting_point[0],
-                                        starting_y=starting_point[1], resolution=segment_size)
+def create_map_segment(difficulty, space, starting_point, segment_size, map_width):
+    map_fragments = gen.generate_map(diff_level=difficulty, x_offset=starting_point[0],
+                                     y_offset=starting_point[1], resolution=segment_size)
     fragment_start = map_fragments[0]
     map_segment = []
     for fragment_end in map_fragments[1:]:
-        fragment = pymunk.Segment(space.static_body, fragment_start, fragment_end, 2)
+        fragment = pymunk.Segment(space.static_body, fragment_start, fragment_end, map_width)
         fragment_start = fragment_end
         fragment.elasticity = ELASTICITY
         fragment.friction = FRICTION
