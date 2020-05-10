@@ -4,8 +4,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-CART_POLE_IN_NUM = 4
-CART_POLE_OUT_NUM = 2
 
 # ONLY NETWORK HERE  ==> IT'LL BE REPLACED WITH OUR NETWORK
 
@@ -53,8 +51,8 @@ class A2CTrainer:
         self.estim_values = []
         self.action_logarithms = []
         self.rewards = []
-        self.entropy_loss = 0
-        self.Qvals = None
+        self.np_entropy_loss = 0
+        self.np_Qvals = None
         self.render = False
 
     def choose_action(self, probabilities):
@@ -67,25 +65,28 @@ class A2CTrainer:
         return torch.log(probabilities.squeeze(axis=0)[chosen_action])
 
     def clear_previous_batch_data(self):
-        self.estim_values = []
-        self.action_logarithms = []
         self.rewards = []
-        self.entropy_loss = 0
+        self.np_estim_values = []
+        self.tensor_action_logarithms = []
+        self.np_entropy_loss = 0
 
-    def save_batch_data(self, reward, estim_value, logarithm_probs, entropy):
+    def save_batch_data(self, reward, np_estim_value,
+                        tensor_logarithm_probs, np_entropy):
         self.rewards.append(reward)
-        self.estim_values.append(estim_value)
-        self.action_logarithms.append(logarithm_probs)
-        self.entropy_loss += entropy
+        self.np_estim_values.append(np_estim_value)
+        self.tensor_action_logarithms.append(tensor_logarithm_probs)
+        self.np_entropy_loss += np_entropy
 
-    def calculate_qvals(self, Qval):
-        self.Qvals = np.zeros_like(self.estim_values)
+    def calculate_qvals(self, np_Qval):
+        self.np_Qvals = np.zeros_like(self.np_estim_values)
         for it in reversed(range(len(self.rewards))):
-            Qval = self.rewards[it] + self.gamma * Qval
-            self.Qvals[it] = Qval
+            np_Qval = self.rewards[it] + self.gamma * np_Qval
+            self.np_Qvals[it] = np_Qval
 
     def calculate_actor_loss(self, advantage):
-        return (-self.action_logarithms * advantage).mean()
+        single_tensor_action_logarithms = torch.stack(
+            self.tensor_action_logarithms)
+        return (-single_tensor_action_logarithms * advantage).mean()
 
     def calculate_critic_loss(self, advantage):
         return 0.5 * advantage.pow(2).mean()
@@ -96,7 +97,7 @@ class A2CTrainer:
 
         for simulation_step in range(self.batch_size):
 
-            if episode % RENDER_INTERVAL == 0:
+            if self.render:
                 self.env.render()
 
             action_chance, estim_value = self.net.forward(current_state)
@@ -107,33 +108,32 @@ class A2CTrainer:
 
             observation, reward, done, _ = self.env.step(chosen_action)
 
-            estim_value = estim_value.detach().numpy()[0, 0]
-            entropy = self.calculate_entropy(np_action_chance)
-            logarithm_probabilities = self.calculate_logarithm_probs(
+            np_estim_value = estim_value.detach().numpy()[0, 0]
+            np_entropy = self.calculate_entropy(np_action_chance)
+            tensor_logarithm_probabilities = self.calculate_logarithm_probs(
                 action_chance, chosen_action)
 
             self.save_batch_data(reward,
-                                 estim_value,
-                                 logarithm_probabilities,
-                                 entropy)
+                                 np_estim_value,
+                                 tensor_logarithm_probabilities,
+                                 np_entropy)
 
             current_state = observation
             if done or simulation_step == self.batch_size - 1:
                 Qval, _ = self.net.forward(observation)
-                Qval = Qval.detach().numpy()[0, 0]
+                np_Qval = Qval.detach().numpy()[0, 0]
                 break
 
-        self.calculate_qvals(Qval)
+        self.calculate_qvals(np_Qval)
 
-        self.estim_values = torch.FloatTensor(self.estim_values)
-        self.Qvals = torch.FloatTensor(self.Qvals)
-        self.action_logarithms = torch.stack(self.action_logarithms)
+        tensor_estim_values = torch.FloatTensor(self.np_estim_values)
+        tensor_Qvals = torch.FloatTensor(self.np_Qvals)
 
-        advantage = self.Qvals - self.estim_values
+        advantage = tensor_Qvals - tensor_estim_values
         actor_loss = self.calculate_actor_loss(advantage)
         critic_loss = self.calculate_critic_loss(advantage)
 
-        loss = actor_loss + critic_loss + self.beta_entropy * self.entropy_loss
+        loss = actor_loss + critic_loss + self.beta_entropy * self.np_entropy_loss
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -143,6 +143,8 @@ class A2CTrainer:
 
 
 if __name__ == '__main__':
+    CART_POLE_IN_NUM = 4
+    CART_POLE_OUT_NUM = 2
     NUM_OF_EPISODES = 1500
     RENDER_INTERVAL = 100
     trainer = A2CTrainer(net=Net(CART_POLE_IN_NUM, CART_POLE_OUT_NUM),
