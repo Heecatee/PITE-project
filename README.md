@@ -6,7 +6,7 @@
 * Patryk Radoń (Team Leader)
 * Karol Kocierz
 
-## Short description of the idea
+## Short description of the idea (for a detailed plan please go [here](https://github.com/Heecatee/Swarmball/blob/master/detailed_plan.md))
 
 Swarmball.ai is a project based on real-life  problem of adapting the robotic tool to the environment when the task is to simply move some objects around. We have noticed, that there may be a more **versatile** approach.
 
