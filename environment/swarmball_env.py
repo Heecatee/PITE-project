@@ -1,6 +1,10 @@
+import sys
+sys.path.append('./simulation')
+
 import gym
 from gym import spaces, logger
 from gym.utils import seeding
+
 from simulation.simulation import SwarmBallSimulation
 
 class SwarmBall(gym.Env):
