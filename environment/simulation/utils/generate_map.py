@@ -52,7 +52,7 @@ class Map:
         if not len(self.map_points):
             xs = [point.x for point in self.points_before_interpolation]
         else:
-            xs = [point[0] for point in self.map_points]
+            xs = self.map_points[:, 0]
         return xs
 
     def get_Y_list(self):
@@ -60,7 +60,7 @@ class Map:
         if not len(self.map_points):
             ys = [point.y for point in self.points_before_interpolation]
         else:
-            ys = [point[1] for point in self.map_points]
+            ys = self.map_points[:, 1]
         return ys
 
     def __len__(self):
