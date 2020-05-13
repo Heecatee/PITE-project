@@ -1,7 +1,7 @@
 import gym
 from gym import spaces, logger
 from gym.utils import seeding
-from simulation.simulation import SwarmBallSimulation
+from .simulation.simulation import SwarmBallSimulation
 
 class SwarmBall(gym.Env):
     def __init__(self):
@@ -17,11 +17,10 @@ class SwarmBall(gym.Env):
         self.sim.step()
 
     def reset(self):
-        self.sim._init_static_scenery()
-        self.sim._init_simulation_objects()
+        self.sim.reset()
 
     def render(self):
-        self.sim._redraw()
+        self.sim.redraw()
 
     def close(self):
         """

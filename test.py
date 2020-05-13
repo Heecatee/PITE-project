@@ -1,4 +1,4 @@
-import environment.swarmball_env as swarmball
+from environment import swarmball_env as swarmball
 
 env = swarmball.SwarmBall()
 env.reset()
