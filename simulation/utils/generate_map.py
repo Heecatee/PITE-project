@@ -13,13 +13,12 @@ TAKING_STEP_BACK_PROBABILITY = 0.3
 
 Point = namedtuple('Point', 'x y')
 
-
 class Map:
-    def __init__(self, starting_point, resolution=(1280, 720), seed=None):
+    def __init__(self, starting_point, x_offset, resolution=(1280, 720), seed=None):
         self.points_before_interpolation = []
         self.map_points = np.array([])
         self.segments = np.array([])
-        self.x_offset = starting_point.x
+        self.x_offset = x_offset
         self.y_offset = starting_point.y
         self.append_point_before_interpolation(starting_point)
         self.resolution = resolution
@@ -117,6 +116,7 @@ class Map:
         tck, u = splprep([self.get_X_list(), self.get_Y_list()], s=0)
         x_array = np.linspace(start=0, stop=1, num=self.resolution[0])
         x_array, y_array = splev(x_array, tck, der=0)
+        x_array += self.x_offset
         self.map_points = np.vstack((x_array, y_array)).T
         self.segments = list(zip(self.map_points[:-1], self.map_points[1:]))
 
@@ -179,8 +179,8 @@ def prepare_map_before_interpolation(resolution, step, angle_range, x_offset, y_
     y_res = resolution[1]
 
     y_offset = random.randrange(y_res / 4, y_res * 3 / 5) if not y_offset else y_offset
-    point = Point(x_offset, y_offset)
-    game_map = Map(point, resolution, seed)
+    point = Point(0.0, y_offset)
+    game_map = Map(point, x_offset, resolution, seed)
 
     while point.x < x_res:
         point = generate_next_point(point, step, angle_range, y_res)
