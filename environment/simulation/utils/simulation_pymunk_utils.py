@@ -2,8 +2,12 @@ import random
 import numpy
 import pymunk
 
-import utils.simulation_utils as utils
-import utils.generate_map as gen
+try:
+    from . import simulation_utils as utils
+    from . import generate_map as gen
+except ImportError:
+    from utils import simulation_utils as utils
+    from utils import generate_map as gen
 
 
 ELASTICITY = 0.3
