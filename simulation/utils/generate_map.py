@@ -9,7 +9,7 @@ from collections import namedtuple
 Y_CEILING_LIMIT = 20
 LOOP_ELIMINATION_ACCURACY = 3
 TAKING_STEP_BACK_PROBABILITY = 0.3
-
+INTERPOLATION_K = 3
 
 Point = namedtuple('Point', 'x y')
 
@@ -29,7 +29,7 @@ class Map:
 
     def __getitem__(self, key):
         """Get point of the map: e.g. game_map[7] ---> (x7,y7)"""
-        if self.map_points.size == 0:
+        if not len(self.map_points):
             return self.points_before_interpolation[key]
         else:
             return self.map_points[key]
@@ -69,17 +69,19 @@ class Map:
         else:
             return len(self.map_points)
 
+
     def __delitem__(self, index):
         if self.map_points.size == 0:
             del self.points_before_interpolation[index]
         else:
             del self.map_points[index]
 
+
     def are_points_in_clockwise_order(self, A, B, C):
         return (C.y - A.y) * (B.x - A.x) < (B.y - A.y) * (C.x - A.x)
 
     def are_lines_intersecting(self, index_of_first_line_starting_point, index_of_second_line_starting_point):
-        """Function that checks if two lines intersect"""
+        """Function that checks if two lines ((X[i],Y[i]), (X[i+1], Y[i+1])), ((X[j],Y[j]), (X[j+1],Y[j+1])) intersect"""
         i = index_of_first_line_starting_point
         j = index_of_second_line_starting_point
 
@@ -97,23 +99,45 @@ class Map:
 
         return order_1 != order_2 and order_3 != order_4
 
-    def delete_map_loops(self, step, angle, points_radius=50):
+
+    def delete_map_loops(self, step, points_radius=50, filling_points_angle = math.pi/4):
         """Function that gets rid of most of the loops in map so as to make it a little less crazy"""
-        i = 0
         size = len(self.points_before_interpolation)
-        while i < size - 1:
+        indexes_of_points_to_delete = []
+
+        for i in range(1, size - 1):
+            if len(indexes_of_points_to_delete) >= size - (INTERPOLATION_K + 1):
+                break
             left_limit = i - points_radius if i >= points_radius else 0
             right_limit = i + points_radius if i + points_radius < size else size - 2
             for j in range(left_limit + 1, right_limit):
-                j = size - 2 if j >= size - 1 else j
                 if self.are_lines_intersecting(i, j):
-                    del self.points_before_interpolation[i + 1]
-                    point = generate_next_point(self.points_before_interpolation[size - 2], step, angle, self.resolution[1])
-                    self.append_point_before_interpolation(point)
-            i += 1
+                    indexes_of_points_to_delete.append(i)
+                    break
+
+        indexes_of_points_to_delete.sort(reverse=True)
+        for index in indexes_of_points_to_delete:
+            del self.points_before_interpolation[index]
+
+        diff = self.resolution[0] - self.points_before_interpolation[-1].x
+        points_to_add = []
+
+        while diff > 0:
+            step2 = step if diff > step else diff
+            prev = self.points_before_interpolation[-1] if not len(points_to_add) else points_to_add[-1]
+            point = generate_next_point(
+                prev_point=prev,
+                step=step2,
+                alpha=filling_points_angle,
+                y_resolution=self.resolution[1])
+            points_to_add.append(point)
+            diff -= step2
+
+        for point in points_to_add:
+            self.append_point_before_interpolation(point)
 
     def interpolate(self):
-        tck, u = splprep([self.get_X_list(), self.get_Y_list()], s=0)
+        tck, u = splprep([self.get_X_list(), self.get_Y_list()], s=0, k=INTERPOLATION_K)
         x_array = np.linspace(start=0, stop=1, num=self.resolution[0])
         x_array, y_array = splev(x_array, tck, der=0)
         x_array += self.x_offset
@@ -122,6 +146,7 @@ class Map:
 
     def save_to_file(self, filename='test_map.png', fill=False):
         plt.clf()
+        plt.figure(figsize=(self.resolution[0], self.resolution[1]))
         plt.xlim(self.x_offset, self.resolution[0] + self.x_offset)
         plt.ylim(0.0, self.resolution[1])
         if fill:
@@ -131,6 +156,7 @@ class Map:
 
     def show_map(self, fill=False):
         plt.clf()
+        # plt.figure(figsize=(self.resolution[0], self.resolution[1]))
         plt.xlim(self.x_offset, self.resolution[0] + self.x_offset)
         plt.ylim(0.0, self.resolution[1])
         if fill:
@@ -187,7 +213,9 @@ def prepare_map_before_interpolation(resolution, step, angle_range, x_offset, y_
         game_map.append_point_before_interpolation(point)
 
     for _ in range(LOOP_ELIMINATION_ACCURACY):
-        game_map.delete_map_loops(step, angle_range)
+        if len(game_map) <= 10:
+            break
+        game_map.delete_map_loops(step, filling_points_angle=angle_range)
 
     return game_map
 
@@ -200,7 +228,7 @@ def get_level_parameters(diff_level, x_res):
     angle_range = None
 
     if diff_level == Difficulty.PATHETIC:
-        step = 2
+        step = x_res / 4
         angle_range = 0
 
     elif diff_level == Difficulty.EASY:
