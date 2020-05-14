@@ -29,7 +29,7 @@ class Map:
 
     def __getitem__(self, key):
         """Get point of the map: e.g. game_map[7] ---> (x7,y7)"""
-        if not len(self.map_points):
+        if self.map_points.size == 0:
             return self.points_before_interpolation[key]
         else:
             return self.map_points[key]
@@ -48,7 +48,7 @@ class Map:
 
     def get_X_list(self):
         """Get list of x coordinates"""
-        if not len(self.map_points):
+        if self.map_points.size == 0:
             xs = [point.x for point in self.points_before_interpolation]
         else:
             xs = self.map_points[:, 0]
@@ -56,7 +56,7 @@ class Map:
 
     def get_Y_list(self):
         """Get list of y coordinates"""
-        if not len(self.map_points):
+        if self.map_points.size == 0:
             ys = [point.y for point in self.points_before_interpolation]
         else:
             ys = self.map_points[:, 1]
@@ -64,13 +64,13 @@ class Map:
 
     def __len__(self):
         """ Length of map (points, not segments) """
-        if not len(self.map_points):
+        if self.map_points.size == 0:
             return len(self.points_before_interpolation)
         else:
             return len(self.map_points)
 
     def __delitem__(self, index):
-        if not len(self.map_points):
+        if self.map_points.size == 0:
             del self.points_before_interpolation[index]
         else:
             del self.map_points[index]
