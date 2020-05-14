@@ -12,7 +12,8 @@ import utils.simulation_pygame_utils as pygame_utils
 
 from utils.generate_map import Difficulty
 
-
+DEMO_THRESHOLD_POSITION = 0
+DEMO_THRESHOLD_SPEED = 1
 class SwarmBallSimulation(object):
     def __init__(self,
                  number_of_clusters=3,
@@ -120,6 +121,7 @@ class SwarmBallSimulation(object):
         self._giant_fry_position += self.enemy_speed
 
     def _update_bots(self):
+        global DEMO_THRESHOLD_POSITION
         for cluster in self._clusters:
             for bot in cluster.bots:
                 if bot.body.position[1] < self.map_bottom_y_threshold:
@@ -127,9 +129,10 @@ class SwarmBallSimulation(object):
                     cluster.bots.remove(bot)
                 else:
                     bot.body.angular_velocity = utils.get_bot_velocity(
-                        cluster.threshold.position,
+                        cluster.threshold.position + DEMO_THRESHOLD_POSITION,
                         bot.body.position.x
                     )
+        DEMO_THRESHOLD_POSITION += DEMO_THRESHOLD_SPEED
 
     def _update_map(self):
         if self._goal_object.body.position[0] > self._map_middle_right_boundary[0]:
