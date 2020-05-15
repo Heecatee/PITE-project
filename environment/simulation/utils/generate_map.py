@@ -4,36 +4,27 @@ import matplotlib.pyplot as plt
 from enum import Enum
 import numpy as np
 from scipy.interpolate import splprep, splev
+from collections import namedtuple
 
-# ************
-class Point:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
+Y_CEILING_LIMIT = 20
+LOOP_ELIMINATION_ACCURACY = 3
+TAKING_STEP_BACK_PROBABILITY = 0.3
+INTERPOLATION_K = 3
 
-    def __str__(self):
-        return '({x},{y})'.format(x=self.x, y=self.y)
-
-    def getPoint(self, x_offset=0):
-        point = (self.x + x_offset, self.y)
-        return point
-
-    def __getitem__(self, key):
-        return self.x if not key else self.y
-
+Point = namedtuple('Point', 'x y')
 
 class Map:
     def __init__(self, starting_point, x_offset, resolution=(1280, 720), seed=None):
         self.points_before_interpolation = []
-        self.map_points = []
-        self.segments = []
+        self.map_points = np.array([])
+        self.segments = np.array([])
         self.x_offset = x_offset
-        self.append(starting_point)
+        self.y_offset = starting_point.y
+        self.append_point_before_interpolation(starting_point)
         self.resolution = resolution
         self.seed = seed
 
-    # ************
-    def append(self, point):
+    def append_point_before_interpolation(self, point):
         self.points_before_interpolation.append(point)
 
     def __getitem__(self, key):
@@ -48,89 +39,125 @@ class Map:
         return self.map_points
 
     def get_data_as_segments(self):
-        """Get map in format [((x1,y1), (x1,y1)), ((x1,y1), (x2,y2)), ((x2,y2), (x3,y3)), ...]"""
+        """Get map in format [((x1,y1), (x1,y1)), ((x1,y1), (x2,y2)), ...]"""
         return self.segments
 
     def get_seed(self):
         """Get the seed of the map"""
         return self.seed
 
-    def X(self):
+    def get_X_list(self):
         """Get list of x coordinates"""
-        xs = [point.x for point in self.points_before_interpolation] if not len(self.map_points) else [point[0] for point in self.map_points]
+        if self.map_points.size == 0:
+            xs = [point.x for point in self.points_before_interpolation]
+        else:
+            xs = self.map_points[:, 0]
         return xs
 
-    def Y(self):
+    def get_Y_list(self):
         """Get list of y coordinates"""
-        ys = [point.y for point in self.points_before_interpolation] if not len(self.map_points) else [point[1] for point in self.map_points]
+        if self.map_points.size == 0:
+            ys = [point.y for point in self.points_before_interpolation]
+        else:
+            ys = self.map_points[:, 1]
         return ys
 
     def __len__(self):
         """ Length of map (points, not segments) """
-        return len(self.points_before_interpolation) if not len(self.map_points) else len(self.map_points)
+        if self.map_points.size == 0:
+            return len(self.points_before_interpolation)
+        else:
+            return len(self.map_points)
 
-    # ************
     def __delitem__(self, index):
-        if not len(self.map_points):
+        if self.map_points.size == 0:
             del self.points_before_interpolation[index]
         else:
             del self.map_points[index]
 
-    # ************
-    def is_crossing(self, i, j):
+    def are_points_in_clockwise_order(self, A, B, C):
+        return (C.y - A.y) * (B.x - A.x) < (B.y - A.y) * (C.x - A.x)
+
+    def are_lines_intersecting(self, index_of_first_line_starting_point, index_of_second_line_starting_point):
         """Function that checks if two lines ((X[i],Y[i]), (X[i+1], Y[i+1])), ((X[j],Y[j]), (X[j+1],Y[j+1])) intersect"""
+        i = index_of_first_line_starting_point
+        j = index_of_second_line_starting_point
+
         if i == j:
             return False
-        try:
-            return intersect(self.points_before_interpolation[i], self.points_before_interpolation[i + 1],
-                             self.points_before_interpolation[j], self.points_before_interpolation[j + 1])
-        except IndexError:
-            print(f'i = {i}, j = {j}, size = {len(self)}')
 
-    # ************
-    def exterminate_loops(self, step, y_res, ran=40):
+        A = self.points_before_interpolation[i]
+        B = self.points_before_interpolation[i + 1]
+        C = self.points_before_interpolation[j]
+        D = self.points_before_interpolation[j + 1]
+        order_1 = self.are_points_in_clockwise_order(A, C, D)
+        order_2 = self.are_points_in_clockwise_order(B, C, D)
+        order_3 = self.are_points_in_clockwise_order(A, B, C)
+        order_4 = self.are_points_in_clockwise_order(A, B, D)
+
+        return order_1 != order_2 and order_3 != order_4
+
+    def delete_map_loops(self, step, points_radius=50, filling_points_angle=math.pi/4):
         """Function that gets rid of most of the loops in map so as to make it a little less crazy"""
-        i = 0
         size = len(self.points_before_interpolation)
-        while i < size - 1:
-            i = size - 2 if i >= size - 1 else i
-            left_limit = i - ran if i >= ran else 0
-            right_limit = i + ran if i + ran < size else size - 2
-            for j in range(left_limit + 1, right_limit):
-                j = size - 2 if j >= size - 1 else j
-                if self.is_crossing(i, j):
-                    del self.points_before_interpolation[i + 1]
-                    point = next_point(self.points_before_interpolation[size - 2], step, math.pi * 3 / 4, y_res)
-                    self.append(point)
-            i += 1
+        indexes_of_points_to_delete = []
 
-    # ************
+        for i in range(1, size - 1):
+            if len(indexes_of_points_to_delete) >= size - (INTERPOLATION_K + 1):
+                break
+            left_limit = i - points_radius if i >= points_radius else 0
+            right_limit = i + points_radius if i + points_radius < size else size - 2
+            for j in range(left_limit + 1, right_limit):
+                if self.are_lines_intersecting(i, j):
+                    indexes_of_points_to_delete.append(i)
+                    break
+
+        indexes_of_points_to_delete.sort(reverse=True)
+        for index in indexes_of_points_to_delete:
+            del self.points_before_interpolation[index]
+
+        diff = self.resolution[0] - self.points_before_interpolation[-1].x
+        points_to_add = []
+
+        while diff > 0:
+            step2 = step if diff > step else diff
+            prev = self.points_before_interpolation[-1] if not len(points_to_add) else points_to_add[-1]
+            point = generate_next_point(
+                prev_point=prev,
+                step=step2,
+                alpha=filling_points_angle,
+                y_resolution=self.resolution[1])
+            points_to_add.append(point)
+            diff -= step2
+
+        for point in points_to_add:
+            self.append_point_before_interpolation(point)
+
     def interpolate(self):
-        tck, u = splprep([self.X(), self.Y()], s=0)
-        x_array = np.linspace(0, 1, self.resolution[0])
+        tck, u = splprep([self.get_X_list(), self.get_Y_list()], s=0, k=INTERPOLATION_K)
+        x_array = np.linspace(start=0, stop=1, num=self.resolution[0])
         x_array, y_array = splev(x_array, tck, der=0)
         x_array += self.x_offset
         self.map_points = np.vstack((x_array, y_array)).T
-        self.segments = [(self.map_points[i-1], self.map_points[i]) for i in range(1, len(self))]
+        self.segments = list(zip(self.map_points[:-1], self.map_points[1:]))
 
     def save_to_file(self, filename='test_map.png', fill=False):
         plt.clf()
-        plt.figure(figsize=(self.resolution[0] / 100, self.resolution[1] / 100))
+        plt.figure(figsize=(self.resolution[0], self.resolution[1]))
         plt.xlim(self.x_offset, self.resolution[0] + self.x_offset)
         plt.ylim(0.0, self.resolution[1])
         if fill:
-            plt.fill_between(self.X(), self.Y())
-        plt.plot(self.X(), self.Y())
+            plt.fill_between(self.get_X_list(), self.get_Y_list())
+        plt.plot(self.get_X_list(), self.get_Y_list())
         plt.savefig(filename, dpi=100)
 
     def show_map(self, fill=False):
         plt.clf()
-        plt.figure(figsize=(self.resolution[0] / 100, self.resolution[1] / 100))
         plt.xlim(self.x_offset, self.resolution[0] + self.x_offset)
         plt.ylim(0.0, self.resolution[1])
         if fill:
-            plt.fill_between(self.X(), self.Y())
-        plt.plot(self.X(), self.Y())
+            plt.fill_between(self.get_X_list(), self.get_Y_list())
+        plt.plot(self.get_X_list(), self.get_Y_list())
         plt.show()
 
 
@@ -143,54 +170,52 @@ class Difficulty(Enum):
     REALLY_HARD = 4
     WTF = 5
 
-# ************
-def intersect(A, B, C, D):
-    """Helper of is_crossing function
-    Returns True if line segments AB and CD intersect"""
-    ccw = lambda A, B, C: (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)
-    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
-# ************
-def next_point(prev_point, step, alpha, y_res):
+def generate_next_point(prev_point, step, alpha, y_resolution):
     """Function returning next random point for the generalized map"""
     y_range = 2 * step * math.tan(alpha / 2)
-    ymin = prev_point.y - y_range / 2
-    ymin = ymin if ymin >= 0 else 0
-    ymax = prev_point.y + y_range / 2
-    ymax = ymax if ymax < y_res - 20 else y_res - 20
+
+    y_min = prev_point.y - y_range / 2
+    y_min = y_min if y_min >= 0 else 0
+    y_max = prev_point.y + y_range / 2
+    y_max = y_max if y_max < y_resolution - Y_CEILING_LIMIT else y_resolution - Y_CEILING_LIMIT
+
     p = random.random()
-    if p >= 0.3:
+    if p >= TAKING_STEP_BACK_PROBABILITY:
         x = prev_point.x + step
     else:
         x = prev_point.x - step if prev_point.x > step else prev_point.x + step
-    y = random.uniform(ymin, ymax)
-    point = Point(x, y)
-    return point
 
-# ************
-def prepare_map(resolution, step, angle_range, x_offset, y_offset, seed):
+    y = random.uniform(y_min, y_max)
+
+    next_point = Point(x, y)
+
+    return next_point
+
+
+def prepare_map_before_interpolation(resolution, step, angle_range, x_offset, y_offset, seed):
     """Function that prepares real map - interpolates random points generated by function next_point
         returns interpolated and smoothed map in X and Y arrays
     """
     x_res = resolution[0]
     y_res = resolution[1]
 
-    x = 0
-    y = random.randrange(y_res / 4, y_res * 3 / 5) if not y_offset else y_offset
-    point = Point(x, y)
+    y_offset = random.randrange(y_res / 4, y_res * 3 / 5) if not y_offset else y_offset
+    point = Point(0.0, y_offset)
     game_map = Map(point, x_offset, resolution, seed)
 
     while point.x < x_res:
-        point = next_point(point, step, angle_range, y_res)
-        game_map.append(point)
+        point = generate_next_point(point, step, angle_range, y_res)
+        game_map.append_point_before_interpolation(point)
 
-    for _ in range(3):
-        game_map.exterminate_loops(step, y_res)
+    for _ in range(LOOP_ELIMINATION_ACCURACY):
+        if len(game_map) <= 10:
+            break
+        game_map.delete_map_loops(step, filling_points_angle=angle_range)
 
-    game_map.interpolate()
     return game_map
 
-# ************
+
 def get_level_parameters(diff_level, x_res):
     """Function that prepares parameters according to difficulty level of map
         returns X and Y ready to go
@@ -199,7 +224,7 @@ def get_level_parameters(diff_level, x_res):
     angle_range = None
 
     if diff_level == Difficulty.PATHETIC:
-        step = 2
+        step = x_res / 4
         angle_range = 0
 
     elif diff_level == Difficulty.EASY:
@@ -236,6 +261,7 @@ def generate_map(seed=None, diff_level=Difficulty.PATHETIC, x_offset=0, y_offset
         seed = random.getstate()
 
     step, angle_range = get_level_parameters(diff_level, resolution[0])
-    game_map = prepare_map(resolution, step, angle_range, x_offset, y_offset, seed)
+    game_map = prepare_map_before_interpolation(resolution, step, angle_range, x_offset, y_offset, seed)
+    game_map.interpolate()
 
     return game_map
