@@ -17,3 +17,17 @@ We will be working on a simplified problem using only **two dimensions**. Instea
 ### The hive mind
 
 The steering is going to be fully automated with **artificial intelligence**, adapting to any environment you make it run on. It will not only be forced to make the balls move the object, but to do it as quickly as possible. This will be accomplished by chasing the ball with a **Death Ray**, which will increase in speed as the algorithm becomes more effective.
+
+
+### Technologies used:
+  -PyMunk, 
+  -PyGame, 
+  -OpenAI gym, 
+  -PyTorch, 
+  -Neural Networks, 
+  -Reinforcement Learning
+ 
+### What will we learn?
+
+This project is mainly aimed at introducing everyone involved to the concepts of deep reinforcement learning, in an end-to-end machine learning project. First, we wil learn how to prepare our own environment from  scratch using python wrappers for phisics engines. After that, we will plan out the training using techniques such as a2c and from that we will dive into the  state-of-art PPO. All that will be done using PyTorch - a deep learning framework, currently leading in the field of deep learning research.
+The next step will introduce us to a process of tuning and training the model in a fast sparse environments or using our own GPU boosted machines. All that will hopefully lead us to a working product, and most of all, every single one of us will be able to say that they truely made an Artificial Intelligence.
