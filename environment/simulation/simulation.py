@@ -6,11 +6,16 @@ import pymunk
 import pymunk.autogeometry
 import pymunk.pygame_util
 
-import utils.simulation_utils as utils
-import utils.simulation_pymunk_utils as pymunk_utils
-import utils.simulation_pygame_utils as pygame_utils
-
-from utils.generate_map import Difficulty
+try:
+    from .utils import simulation_utils as utils
+    from .utils import simulation_pymunk_utils as pymunk_utils
+    from .utils import simulation_pygame_utils as pygame_utils
+    from .utils.generate_map import Difficulty
+except ImportError:
+    import utils.simulation_utils as utils
+    import utils.simulation_pymunk_utils as pymunk_utils
+    import utils.simulation_pygame_utils as pygame_utils
+    from utils.generate_map import Difficulty
 
 DEMO_THRESHOLD_POSITION = 0
 DEMO_THRESHOLD_SPEED = 1
