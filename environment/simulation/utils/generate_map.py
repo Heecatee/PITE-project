@@ -39,7 +39,7 @@ class Map:
         return self.map_points
 
     def get_data_as_segments(self):
-        """Get map in format [((x1,y1), (x1,y1)), ((x1,y1), (x2,y2)), ((x2,y2), (x3,y3)), ...]"""
+        """Get map in format [((x1,y1), (x1,y1)), ((x1,y1), (x2,y2)), ...]"""
         return self.segments
 
     def get_seed(self):
@@ -69,13 +69,11 @@ class Map:
         else:
             return len(self.map_points)
 
-
     def __delitem__(self, index):
         if self.map_points.size == 0:
             del self.points_before_interpolation[index]
         else:
             del self.map_points[index]
-
 
     def are_points_in_clockwise_order(self, A, B, C):
         return (C.y - A.y) * (B.x - A.x) < (B.y - A.y) * (C.x - A.x)
@@ -99,8 +97,7 @@ class Map:
 
         return order_1 != order_2 and order_3 != order_4
 
-
-    def delete_map_loops(self, step, points_radius=50, filling_points_angle = math.pi/4):
+    def delete_map_loops(self, step, points_radius=50, filling_points_angle=math.pi/4):
         """Function that gets rid of most of the loops in map so as to make it a little less crazy"""
         size = len(self.points_before_interpolation)
         indexes_of_points_to_delete = []
@@ -156,7 +153,6 @@ class Map:
 
     def show_map(self, fill=False):
         plt.clf()
-        # plt.figure(figsize=(self.resolution[0], self.resolution[1]))
         plt.xlim(self.x_offset, self.resolution[0] + self.x_offset)
         plt.ylim(0.0, self.resolution[1])
         if fill:
