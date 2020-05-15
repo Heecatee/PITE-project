@@ -24,8 +24,8 @@ class SwarmBallSimulation(object):
                  number_of_clusters=3,
                  number_of_bots_per_cluster=10,
                  enemy_speed=0.5,
-                 difficulty=Difficulty.EASY,
-                 map_segment_size=(300, 100),
+                 difficulty=Difficulty.MEDIUM,
+                 map_segment_size=(500, 300),
                  initial_object_position=(600, 500),
                  screen_size=(1280, 540),
                  dt=1 / 60.0,
@@ -127,6 +127,7 @@ class SwarmBallSimulation(object):
 
     def _update_bots(self):
         global DEMO_THRESHOLD_POSITION
+        global DEMO_THRESHOLD_SPEED
         for cluster in self._clusters:
             for bot in cluster.bots:
                 if bot.body.position[1] < self.map_bottom_y_threshold:
