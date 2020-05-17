@@ -120,7 +120,7 @@ class A2CTrainer:
 
             current_state = observation
             if done or simulation_step == self.batch_size - 1:
-                Qval, _ = self.net.forward(observation)
+                _, Qval = self.net.forward(observation)
                 np_Qval = Qval.detach().numpy()[0, 0]
                 break
 
