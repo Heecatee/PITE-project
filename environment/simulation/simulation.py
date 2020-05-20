@@ -27,59 +27,66 @@ class SwarmBallSimulation(object):
                  map_segment_size=(300, 100),
                  initial_object_position=(600, 500),
                  screen_size=(1280, 540),
-                 dt=1 / 60.0,
                  ticks_per_step=1,
                  ticks_per_render_frame=50,
                  gravity=(0.0, -900),
                  map_bottom_y_threshold=-300,
                  map_width=3
                  ):
-        self._space = None
-        self.gravity = gravity
-        self._map = []
-        self.map_width = map_width
-        self.map_bottom_y_threshold = map_bottom_y_threshold
-        self.initial_object_position = initial_object_position
-        self._map_segment_size = map_segment_size
-        map_initial_x_offset = (self.initial_object_position[0]-self._map_segment_size[0])
-        self._map_beginning = (-map_initial_x_offset, 0.0)
-        self._map_middle_right_boundary = (map_initial_x_offset, 0.0)
-        self.ticks_per_step = ticks_per_step
-        self.ticks_per_render_frame = ticks_per_render_frame
-        self.difficulty = difficulty
-        self._giant_fry = None
-        self._simulation_is_running = True
+        # external simulation properties
+        self.debug = False
         self.number_of_clusters = number_of_clusters
         self.number_of_bots_per_cluster = number_of_bots_per_cluster
         self.enemy_speed = enemy_speed
+        self.initial_object_position = initial_object_position
+        self.ticks_per_step = ticks_per_step
+        self.ticks_per_render_frame = ticks_per_render_frame
+        self.difficulty = difficulty
+        self.map_segment_size = map_segment_size
+        self.map_width = map_width
+        self.map_bottom_y_threshold = map_bottom_y_threshold
+        self.gravity = gravity
+        self.screen_size = screen_size
+
+        # internal simulation properties
+        self._simulation_is_running = True
+        self._dt = 1 / 60.0
+        map_initial_x_offset = (self.initial_object_position[0] - self.map_segment_size[0])
+        self._map_beginning = (-map_initial_x_offset, 0.0)
+        self._map_middle_right_boundary = (map_initial_x_offset, 0.0)
+        self._enemy_position = -map_initial_x_offset
+
+        # internal simulation objects
+        self._map = []
+        self._space = None
+        self._enemy = None
         self._clusters = None
         self._goal_object = None
-        self._thresholds = []
-        self._giant_fry_position = -map_initial_x_offset
-        self._dt = dt
 
         # pygame constants
-        self.screen_size = screen_size
         self._screen = pygame.display.set_mode(self.screen_size)
         self._clock = pygame.time.Clock()
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
 
         pygame.init()
 
-    def update_thresholds(self, *accelerations):
-        if len(accelerations) == len(self._thresholds):
-            # TODO: update velocity of all thresholds
-            pass
+    # input
+    def update_threshold(self, index, position):
+        self._clusters[index].threshold.position = position
+
+    # output
+    def threshold_positions(self):
+        return [cluster.threshold.position for cluster in self._clusters]
+
+    # output
+    def space_near_goal_object(self, window_size):
+        return pygame.image.tostring(self._screen, "RGB")
 
     def reset(self):
         self._space = pymunk.Space()
         self._space.gravity = self.gravity
         self._init_static_scenery()
         self._init_simulation_objects()
-
-    def space_near_goal_object(self, window_size):
-        pygame.image.tostring(self._screen, "RGB")
-        return None
 
     def step(self):
         for _ in range(self.ticks_per_step):
@@ -99,7 +106,7 @@ class SwarmBallSimulation(object):
             map_segment, segment_end_point = pymunk_utils.create_map_segment(difficulty=self.difficulty,
                                                                              space=self._space,
                                                                              starting_point=self._map_beginning,
-                                                                             segment_size=self._map_segment_size,
+                                                                             segment_size=self.map_segment_size,
                                                                              map_width=self.map_width)
             self._map.append(map_segment)
             self._map_middle_right_boundary = self._map_beginning
@@ -122,7 +129,7 @@ class SwarmBallSimulation(object):
 
     def _update_simulation_objects(self):
         self._update_bots()
-        self._giant_fry_position += self.enemy_speed
+        self._enemy_position += self.enemy_speed
 
     def _update_bots(self):
         for cluster in self._clusters:
@@ -141,7 +148,7 @@ class SwarmBallSimulation(object):
             map_segment, segment_end_point = pymunk_utils.create_map_segment(difficulty=self.difficulty,
                                                                              space=self._space,
                                                                              starting_point=self._map_beginning,
-                                                                             segment_size=self._map_segment_size,
+                                                                             segment_size=self.map_segment_size,
                                                                              map_width=self.map_width)
             self._space.remove(self._map[0])
             self._map.pop(0)
@@ -159,15 +166,15 @@ class SwarmBallSimulation(object):
             elif event.type == KEYDOWN and event.key == K_p:
                 pygame.image.save(self._screen, "swarm_ball_simulation.png")
 
-    def redraw(self, debug=False):
+    def redraw(self):
         self._screen.fill(THECOLORS["white"])
-        if debug is True:
+        if self.debug is True:
             self._space.debug_draw(self._draw_options)
             pygame_utils.draw_thresholds(self._screen, self._clusters, self.screen_size)
         else:
             offset = (self.initial_object_position[0] - self._goal_object.body.position[0], 0)
             pygame_utils.draw_clusters(self._screen, self._clusters, offset)
-            pygame_utils.draw_enemy(self._screen, self._giant_fry_position, offset, self.screen_size)
+            pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
             for map_segment in self._map:
                 pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
             pygame_utils.draw_goal_object(self._screen, self._goal_object,  self.initial_object_position)
@@ -177,6 +184,8 @@ class SwarmBallSimulation(object):
 
 if __name__ == '__main__':
     swarmBallSimulation = SwarmBallSimulation()
+    swarmBallSimulation.debug = True
     swarmBallSimulation.reset()
     swarmBallSimulation.run()
+    print(swarmBallSimulation.threshold_positions())
 
