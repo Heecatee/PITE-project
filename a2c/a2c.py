@@ -63,6 +63,7 @@ class DataCollector:
         self.Qval = 0
 
     def clear_previous_batch_data(self):
+        self.np_Qvals = []
         self.rewards = []
         self.action_logarithms = []
         self.states = []
@@ -140,7 +141,7 @@ class A2CTrainer:
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-
+        
         self.net.load_state_dict(self.new_net.state_dict())
         return sum(self.data.rewards), self.net
 
