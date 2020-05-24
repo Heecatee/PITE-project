@@ -155,7 +155,7 @@ if __name__ == '__main__':
     trainer = A2CTrainer(net=Net(LUNAR_LANDER_IN_NUM, LUNAR_LANDER_OUT_NUM),
                          out_num=LUNAR_LANDER_OUT_NUM,
                          environment_name='LunarLander-v2',
-                         batch_size=600,
+                         batch_size=300,
                          gamma=0.99,
                          beta_entropy=0.001,
                          learning_rate=0.001,
