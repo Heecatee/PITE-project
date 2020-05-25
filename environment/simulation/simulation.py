@@ -71,7 +71,7 @@ class SwarmBallSimulation(object):
         pygame.init()
 
     # input
-    def update_threshold(self, index, position):
+    def update_thresholds_position(self, index, position):
         self._clusters[index].threshold.position = position
 
     # output
@@ -98,6 +98,7 @@ class SwarmBallSimulation(object):
         while self._simulation_is_running:
             self.step()
             self._process_events()
+            self.update_thresholds_position(1,1)
             self.redraw()
 
     def _init_static_scenery(self):
