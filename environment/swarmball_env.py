@@ -24,7 +24,7 @@ class SwarmBall(gym.Env):
             print(i, action[i])
             self.sim.update_thresholds_position(i, action[i])
         self.sim.step()
-        observations = {'picture': self.sim.space_near_goal_object, 'past_thresholds': self.thresholds}
+        observations = {'picture': self.sim.space_near_goal_object(0), 'thresholds': self.thresholds}
         return observations, self.reward(), False, {}
 
     def reset(self):
