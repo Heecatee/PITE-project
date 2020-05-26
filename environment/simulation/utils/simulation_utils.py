@@ -2,8 +2,18 @@ import collections
 
 VELOCITY_COEFFICIENT = 0.5
 
-Threshold = collections.namedtuple('Threshold', 'position velocity')
-Cluster = collections.namedtuple('AgentsPerThreshold', 'color threshold bots')
+
+class Threshold:
+    def __init__(self, position=0, velocity=0):
+        self.position = position
+        self.velocity = velocity
+
+
+class Cluster:
+    def __init__(self, color, threshold, bots):
+        self.color = color
+        self.threshold = threshold
+        self.bots = bots
 
 
 # get angular velocity proportional to distance from threshold
