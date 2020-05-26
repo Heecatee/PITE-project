@@ -32,9 +32,9 @@ def draw_map(screen, map_segment, offset, map_width):
         pygame.draw.line(screen, MAP_COLOR, p1_translated+pymunk.Vec2d(offset), p2_translated+pymunk.Vec2d(offset), 2*map_width)
 
 
-def draw_goal_object(screen, goal_object, position):
+def draw_goal_object(screen, goal_object, screen_size):
     body = goal_object.body
-    points = [point.rotated(body.angle) + pymunk.Vec2d(position[0], body.position[1]) for point in goal_object.get_vertices()]
+    points = [point.rotated(body.angle) + pymunk.Vec2d(screen_size[0]/2, body.position[1]) for point in goal_object.get_vertices()]
     points.append(points[0])
     ps = [pymunk.pygame_util.to_pygame(point, screen) for point in points]
     pygame.draw.polygon(screen, GOAL_OBJECT_COLOR, ps)
