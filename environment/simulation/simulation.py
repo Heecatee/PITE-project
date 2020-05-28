@@ -23,7 +23,7 @@ class SwarmBallSimulation(object):
                  number_of_clusters=3,
                  number_of_bots_per_cluster=10,
                  enemy_speed=0.5,
-                 difficulty=Difficulty.EASY,
+                 difficulty=None,
                  map_segment_size=(600, 600),
                  initial_object_height=500,
                  screen_size=(1280, 540),
@@ -43,6 +43,7 @@ class SwarmBallSimulation(object):
         self.ticks_per_render_frame = ticks_per_render_frame
         self.difficulty = difficulty
         self.map_segment_size = map_segment_size
+        self.segment_count = 0
         self.map_width = map_width
         self.map_bottom_y_threshold = map_bottom_y_threshold
         self.gravity = gravity
@@ -103,11 +104,13 @@ class SwarmBallSimulation(object):
     def _init_static_scenery(self):
         number_of_starting_platforms = 3
         for _ in range(number_of_starting_platforms):
+            self.segment_count += 1
             map_segment, segment_end_point = pymunk_utils.create_map_segment(difficulty=self.difficulty,
                                                                              space=self._space,
                                                                              starting_point=self._map_beginning,
                                                                              segment_size=self.map_segment_size,
-                                                                             map_width=self.map_width)
+                                                                             map_width=self.map_width,
+                                                                             segment_count=self.segment_count)
             self._map.append(map_segment)
             self._map_middle_right_boundary = self._map_beginning
             self._map_beginning = segment_end_point
@@ -145,11 +148,13 @@ class SwarmBallSimulation(object):
 
     def _update_map(self):
         if self._goal_object.body.position[0] > self._map_middle_right_boundary[0]:
+            self.segment_count += 1
             map_segment, segment_end_point = pymunk_utils.create_map_segment(difficulty=self.difficulty,
                                                                              space=self._space,
                                                                              starting_point=self._map_beginning,
                                                                              segment_size=self.map_segment_size,
-                                                                             map_width=self.map_width)
+                                                                             map_width=self.map_width,
+                                                                             segment_count=self.segment_count)
             self._space.remove(self._map[0])
             self._map.pop(0)
             self._map.append(map_segment)

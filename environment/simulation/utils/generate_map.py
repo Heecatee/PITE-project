@@ -1,7 +1,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
-from enum import Enum
+from enum import IntEnum
 import numpy as np
 from scipy.interpolate import splprep, splev
 from collections import namedtuple
@@ -161,14 +161,14 @@ class Map:
         plt.show()
 
 
-class Difficulty(Enum):
+class Difficulty(IntEnum):
     """Enum for Difficulty level"""
-    PATHETIC = 0
-    EASY = 1
-    MEDIUM = 2
-    HARD = 3
-    REALLY_HARD = 4
-    WTF = 5
+    PATHETIC = 1
+    EASY = 2
+    MEDIUM = 3
+    HARD = 4
+    REALLY_HARD = 5
+    WTF = 6
 
 
 def generate_next_point(prev_point, step, alpha, y_resolution):

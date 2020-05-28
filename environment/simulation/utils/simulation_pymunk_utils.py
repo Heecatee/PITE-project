@@ -17,6 +17,7 @@ BOTS_MASS = 30
 GOAL_OBJECT_SIZE = (20, 20)
 GOAL_OBJECT_MASS = 3
 GOAL_OBJECT_FRICTION = 0.01
+SEGMENTS_PER_DIFFICULTY = 3
 
 
 def create_clusters(number_of_clusters, screen_size, number_of_bots_per_threshold):
@@ -62,8 +63,17 @@ def create_goal_object(position):
     return shape
 
 
-def create_map_segment(difficulty, space, starting_point, segment_size, map_width):
-    map_fragments = gen.generate_map(diff_level=difficulty, x_offset=starting_point[0],
+def create_map_segment(difficulty, space, starting_point, segment_size, map_width, segment_count):
+    diff = difficulty
+
+    # setting dynamic difficulty only if difficulty == None
+    if not diff:
+        diff = segment_count//SEGMENTS_PER_DIFFICULTY + 1
+        if diff > 6:
+            diff = 6
+        diff = gen.Difficulty(diff)
+
+    map_fragments = gen.generate_map(diff_level=diff, x_offset=starting_point[0],
                                      y_offset=starting_point[1], resolution=segment_size)
     fragment_start = map_fragments[0]
     map_segment = []
