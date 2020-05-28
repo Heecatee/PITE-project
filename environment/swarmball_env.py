@@ -1,7 +1,11 @@
 import gym
 from gym import spaces, logger
 from gym.utils import seeding
-from .simulation.simulation import SwarmBallSimulation
+
+try:
+    from .simulation.simulation import SwarmBallSimulation
+except ImportError:
+    from simulation.simulation import SwarmBallSimulation
 
 class SwarmBall(gym.Env):
     def __init__(self, acc_factor=0.25, number_of_clusters=3, **kwargs):
