@@ -78,7 +78,7 @@ class SwarmBallSimulation(object):
         return [cluster.threshold.position for cluster in self._clusters]
 
     # output
-    def space_near_goal_object(self, window_size):
+    def space_near_goal_object(self):
         return pygame.image.tostring(self._screen, "RGB")
 
     def reset(self):
@@ -92,6 +92,7 @@ class SwarmBallSimulation(object):
             self._space.step(self._dt)
         self._update_map()
         self._update_simulation_objects()
+        self._update_screen()
 
     def run(self):
         while self._simulation_is_running:
@@ -166,7 +167,7 @@ class SwarmBallSimulation(object):
             elif event.type == KEYDOWN and event.key == K_p:
                 pygame.image.save(self._screen, "swarm_ball_simulation.png")
 
-    def redraw(self):
+    def _update_screen(self):
         self._screen.fill(THECOLORS["white"])
         if self.debug is True:
             self._space.debug_draw(self._draw_options)
@@ -179,6 +180,8 @@ class SwarmBallSimulation(object):
                 pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
             pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
         self._clock.tick(self.ticks_per_render_frame)
+
+    def redraw(self):
         pygame.display.flip()
 
 
