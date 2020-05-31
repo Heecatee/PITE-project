@@ -32,6 +32,8 @@ class HiveNetVision(nn.Module):
         self.output = nn.Linear(linear_input_size, outputs)
 
     def forward(self, map_image):
+        map_image = Image.frombytes(
+            mode='RGB', size=(1280, 540), data=map_image)
         x = self.process_image_input(map_image)
         self.map_history.pop(0)
         self.map_history.append(x)
@@ -41,4 +43,3 @@ class HiveNetVision(nn.Module):
         x = torch.flatten(x)
         x = self.output(x)
         return x
-
