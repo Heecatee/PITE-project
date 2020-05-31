@@ -79,7 +79,8 @@ class SwarmBallSimulation(object):
         return [cluster.threshold.position for cluster in self._clusters]
 
     # output
-    def space_near_goal_object(self, window_size):
+    def space_near_goal_object(self):
+        self._update_screen()
         return pygame.image.tostring(self._screen, "RGB")
 
     def reset(self):
@@ -171,20 +172,23 @@ class SwarmBallSimulation(object):
             elif event.type == KEYDOWN and event.key == K_p:
                 pygame.image.save(self._screen, "swarm_ball_simulation.png")
 
-    def redraw(self):
+    def _update_screen(self):
         self._screen.fill(THECOLORS["white"])
+        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], 0)
+        pygame_utils.draw_clusters(self._screen, self._clusters, offset)
+        pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
+        for map_segment in self._map:
+            pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
+        pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
+        self._clock.tick(self.ticks_per_render_frame)
+
+    def redraw(self):
         if self.debug is True:
             self._space.debug_draw(self._draw_options)
             pygame_utils.draw_thresholds(self._screen, self._clusters, self.screen_size)
         else:
-            offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], 0)
-            pygame_utils.draw_clusters(self._screen, self._clusters, offset)
-            pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
-            for map_segment in self._map:
-                pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
-            pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
-        self._clock.tick(self.ticks_per_render_frame)
-        pygame.display.flip()
+            self._update_screen()
+            pygame.display.flip()
 
 
 if __name__ == '__main__':
