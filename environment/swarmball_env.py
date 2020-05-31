@@ -35,6 +35,7 @@ class SwarmBall(gym.Env):
     def reset(self):
         self.thresh_vel = [0 for _ in range(self.cluster_count)]
         self.sim.reset()
+        self.goal_prev_pos = self.sim._goal_object.body.position[0]
 
     def render(self):
         self.sim.redraw()
