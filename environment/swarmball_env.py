@@ -15,7 +15,14 @@ class SwarmBall(gym.Env):
         self.acc_factor = acc_factor
 
     def reward(self):
-        pass
+        tmp = self.goal_prev_pos
+        self.goal_prev_pos = self.sim._goal_object.body.position[0]
+        if tmp < self.sim._goal_object.body.position[0]:
+            return 1
+        elif tmp == self.sim._goal_object.body.position[0]:
+            return 0.5
+        else:
+            return 0
 
     def step(self, action):
         self.thresh_vel = [self.thresh_vel[i] + action[i]*self.acc_factor for i in range(self.cluster_count)]
