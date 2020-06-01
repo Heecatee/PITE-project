@@ -15,12 +15,7 @@ class SwarmBall(gym.Env):
         self.acc_factor = acc_factor
 
     def reward(self):
-        if self.goal_prev_pos < self.sim._goal_object.body.position[0]:
-            points = 1
-        elif self.goal_prev_pos == self.sim._goal_object.body.position[0]:
-            points = 0.5
-        else:
-            points = 0
+        points = self.sim._goal_object.body.position[0] - self.goal_prev_pos
         self.goal_prev_pos = self.sim._goal_object.body.position[0]
         return points
 
@@ -36,6 +31,7 @@ class SwarmBall(gym.Env):
         self.thresh_vel = [0 for _ in range(self.cluster_count)]
         self.sim.reset()
         self.goal_prev_pos = self.sim._goal_object.body.position[0]
+        self.initial_goal_position = self.sim._goal_object.body.position[0]
         return {'picture': self.sim.space_near_goal_object(0), 'thresholds': self.sim.threshold_positions()}
 
     def render(self):
