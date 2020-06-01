@@ -24,7 +24,7 @@ class SwarmBall(gym.Env):
         for i in range(self.cluster_count):
             self.sim.update_thresholds_position(i, self.sim.threshold_positions()[i] + self.thresh_vel[i])
         self.sim.step()
-        observations = {'picture': self.sim.space_near_goal_object(0), 'thresholds': self.sim.threshold_positions()}
+        observations = {'picture': self.sim.space_near_goal_object(), 'thresholds': self.sim.threshold_positions()}
         return observations, self.reward(), self.sim._enemy_position >= self.sim._goal_object.body.position[0] , {'message': 'You look great today cutiepie!'}
 
     def reset(self):
@@ -32,7 +32,7 @@ class SwarmBall(gym.Env):
         self.sim.reset()
         self.goal_prev_pos = self.sim._goal_object.body.position[0]
         self.initial_goal_position = self.sim._goal_object.body.position[0]
-        return {'picture': self.sim.space_near_goal_object(0), 'thresholds': self.sim.threshold_positions()}
+        return {'picture': self.sim.space_near_goal_object(), 'thresholds': self.sim.threshold_positions()}
 
     def render(self):
         self.sim.redraw()
