@@ -279,31 +279,3 @@ def generate_map(seed=None, diff_level=Difficulty.PATHETIC, x_offset=0, y_offset
     game_map.interpolate()
 
     return game_map
-
-
-if __name__ == '__main__':
-    filenamesy = ['map1.png', 'map2.png', 'map3.png', 'map4.png', 'map5.png', 'map6.png']
-    map1 = generate_map(diff_level=Difficulty.PATHETIC)
-    map1.save_to_file(filenamesy[0])
-    map1 = generate_map(diff_level=Difficulty.EASY)
-    map1.save_to_file(filenamesy[1])
-    map2 = generate_map(diff_level=Difficulty.MEDIUM)
-    map2.save_to_file(filenamesy[2])
-    map3 = generate_map(diff_level=Difficulty.HARD)
-    map3.save_to_file(filenamesy[3])
-    map2 = generate_map(diff_level=Difficulty.REALLY_HARD)
-    map2.save_to_file(filenamesy[4])
-    map3 = generate_map(diff_level=Difficulty.WTF)
-    map3.save_to_file(filenamesy[5])
-
-
-    fig = plt.figure(figsize=(10, 10))
-    columns = 2
-    rows = 3
-    pic = 0
-    for i in range(1, columns * rows + 1):
-        img = plt.imread(filenamesy[pic])
-        fig.add_subplot(rows, columns, i)
-        plt.imshow(img)
-        pic += 1
-    plt.show()
