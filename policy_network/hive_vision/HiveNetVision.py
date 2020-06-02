@@ -50,7 +50,7 @@ class HiveNetVision(nn.Module):
             self.map_history.pop(0)
             self.map_history.append(x)
 
-        x = torch.stack(self.map_history).reshape(self.map_history_shape)
+        x = torch.stack(self.map_history, dim=1)
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = torch.flatten(x)
