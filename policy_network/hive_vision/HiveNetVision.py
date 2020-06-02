@@ -7,16 +7,23 @@ from PIL import Image
 
 class HiveNetVision(nn.Module):
 
-    def __init__(self, kernel_size, stride, outputs, starting_frame,
+    def __init__(self, kernel_size, stride, outputs,
                  hidden_layer_dims=(16, 32),
                  frames_per_input=3,
                  image_compressed_size=60):
+
         super(HiveNetVision, self).__init__()
+
         self.process_image_input = T.Compose([T.Grayscale(),
-                                              T.Resize(image_compressed_size, interpolation=Image.CUBIC)])
-        self.map_history = [starting_frame, starting_frame, starting_frame]
+                                              T.Resize(image_compressed_size, interpolation=Image.CUBIC),
+                                              T.ToTensor()])
+        self.map_history = None
+        self.frames_per_input = frames_per_input
+        self.map_history_shape = (1, self.frames_per_input, image_compressed_size, image_compressed_size)
+
         hidden_layer1_size, hidden_layer2_size = hidden_layer_dims
-        self.conv1 = nn.Conv2d(in_channels=frames_per_input, out_channels=hidden_layer1_size,
+
+        self.conv1 = nn.Conv2d(in_channels=self.frames_per_input, out_channels=hidden_layer1_size,
                                kernel_size=kernel_size, stride=stride)
         self.bn1 = nn.BatchNorm2d(hidden_layer1_size)
         self.conv2 = nn.Conv2d(in_channels=hidden_layer1_size, out_channels=hidden_layer2_size,
@@ -32,13 +39,20 @@ class HiveNetVision(nn.Module):
         self.output = nn.Linear(linear_input_size, outputs)
 
     def forward(self, map_image):
+        map_image = Image.frombytes(
+            mode='RGB', size=(1280, 540), data=map_image)
         x = self.process_image_input(map_image)
-        self.map_history.pop(0)
-        self.map_history.append(x)
-        x = torch.Tensor(self.map_history)
+        if self.map_history is None:
+            self.map_history = []
+            for _ in range(self.frames_per_input):
+                self.map_history.append(x)
+        else:
+            self.map_history.pop(0)
+            self.map_history.append(x)
+
+        x = torch.stack(self.map_history, dim=1)
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = torch.flatten(x)
         x = self.output(x)
         return x
-
