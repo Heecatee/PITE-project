@@ -51,7 +51,7 @@ class SwarmBallSimulation(object):
 
         # internal simulation properties
         self._simulation_is_running = True
-        self._dt = 1 / 60.0
+        self._dt = 1 / 80.0
         self._map_beginning = (-1.5*map_segment_size[0], 0.0)
         self._map_middle_right_boundary = (0.5*map_segment_size[0], 0.0)
         self._enemy_position = -1.5*map_segment_size[0]
@@ -84,6 +84,8 @@ class SwarmBallSimulation(object):
         return pygame.image.tostring(self._screen, "RGB")
 
     def reset(self):
+        if self._space is not None:
+            self._space.remove(self._space._get_shapes())
         self._space = pymunk.Space()
         self._space.gravity = self.gravity
         self._init_static_scenery()
@@ -99,7 +101,6 @@ class SwarmBallSimulation(object):
         while self._simulation_is_running:
             self.step()
             self._process_events()
-            self.update_thresholds_position(1,1)
             self.redraw()
 
     def _init_static_scenery(self):
@@ -137,6 +138,7 @@ class SwarmBallSimulation(object):
 
     def _update_bots(self):
         for cluster in self._clusters:
+            cluster.threshold.position = cluster.threshold.position + 1
             for bot in cluster.bots:
                 if bot.body.position[1] < self.map_bottom_y_threshold:
                     self._space.remove(bot)
@@ -175,25 +177,23 @@ class SwarmBallSimulation(object):
     def _update_screen(self):
         self._screen.fill(THECOLORS["white"])
         offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], 0)
-        pygame_utils.draw_clusters(self._screen, self._clusters, offset)
-        pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
+        if self.debug:
+            pygame_utils.draw_thresholds(self._screen, self._clusters, offset, self.screen_size)
         for map_segment in self._map:
             pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
+        pygame_utils.draw_clusters(self._screen, self._clusters, offset)
+        pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
         pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
         self._clock.tick(self.ticks_per_render_frame)
 
     def redraw(self):
-        if self.debug is True:
-            self._space.debug_draw(self._draw_options)
-            pygame_utils.draw_thresholds(self._screen, self._clusters, self.screen_size)
-        else:
-            self._update_screen()
-            pygame.display.flip()
+        self._update_screen()
+        pygame.display.flip()
 
 
 if __name__ == '__main__':
     swarmBallSimulation = SwarmBallSimulation()
-    swarmBallSimulation.debug = False
+    swarmBallSimulation.debug = True
     swarmBallSimulation.reset()
     swarmBallSimulation.run()
     print(swarmBallSimulation.threshold_positions())
