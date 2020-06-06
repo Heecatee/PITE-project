@@ -3,7 +3,7 @@ import numpy as np
 from torch import nn
 from torch.nn import functional as F
 from torch.distributions import Categorical
-from hive_vision.HiveNetVision import HiveNetVision
+from .hive_vision.HiveNetVision import HiveNetVision
 
 class HiveNet(nn.Module):
   def __init__(self, kernel_size, stride, num_of_thresholds,
