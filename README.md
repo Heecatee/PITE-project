@@ -1,4 +1,6 @@
 # Swarmball.ai
+## Documentation
+https://docs.google.com/document/d/1d17AlUiGnsbga3XQSN1vrIGNN-0AY6xPdZwqkYeZTHM/edit?usp=sharing
 ## Participants
 * Maria Korkuć
 * Wioletta Kurek
