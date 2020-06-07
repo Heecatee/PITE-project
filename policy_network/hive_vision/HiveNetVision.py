@@ -10,7 +10,7 @@ class HiveNetVision(nn.Module):
     def __init__(self, kernel_size, stride, outputs,
                  hidden_layer_dims=(16, 32),
                  frames_per_input=3,
-                 image_compressed_size=60):
+                 image_compressed_size=(90, 60)):
 
         super(HiveNetVision, self).__init__()
 
@@ -19,7 +19,7 @@ class HiveNetVision(nn.Module):
                                               T.ToTensor()])
         self.map_history = None
         self.frames_per_input = frames_per_input
-        self.map_history_shape = (1, self.frames_per_input, image_compressed_size, image_compressed_size)
+        self.map_history_shape = (1, self.frames_per_input, image_compressed_size[0], image_compressed_size[1])
 
         hidden_layer1_size, hidden_layer2_size = hidden_layer_dims
 
@@ -33,8 +33,8 @@ class HiveNetVision(nn.Module):
         def conv2d_size(size, kernel_size=kernel_size, stride=stride):
             return (size - kernel_size) // stride + 1
 
-        conv_width = conv2d_size(conv2d_size(image_compressed_size))
-        conv_height = conv2d_size(conv2d_size(image_compressed_size))
+        conv_width = conv2d_size(conv2d_size(image_compressed_size[0]))
+        conv_height = conv2d_size(conv2d_size(image_compressed_size[1]))
         linear_input_size = conv_width * conv_height * hidden_layer2_size
         self.output = nn.Linear(linear_input_size, outputs)
 
@@ -42,6 +42,7 @@ class HiveNetVision(nn.Module):
         map_image = Image.frombytes(
             mode='RGB', size=(1280, 540), data=map_image)
         x = self.process_image_input(map_image)
+
         if self.map_history is None:
             self.map_history = []
             for _ in range(self.frames_per_input):
