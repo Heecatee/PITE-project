@@ -1,9 +1,9 @@
 import torch
+import numpy as np
 from torch import nn
 from torch.nn import functional as F
-from hive_vision import HiveNetVision
 from torch.distributions import Categorical
-
+from hive_vision.HiveNetVision import HiveNetVision
 
 class HiveNet(nn.Module):
   def __init__(self, kernel_size, stride, num_of_thresholds,
@@ -15,18 +15,19 @@ class HiveNet(nn.Module):
     self.vision = HiveNetVision(kernel_size, stride, outputs=vision_net_output)
     self.policy_hidden1 = nn.Linear(in_features=vision_net_output + num_of_thresholds,
                                     out_features=hidden_layer_size)
-    possible_actions_size = actions_per_threshold * num_of_thresholds
+    self.num_of_thresholds = num_of_thresholds
+    possible_actions_size = actions_per_threshold * self.num_of_thresholds
     self.policy_output = nn.Linear(in_features=hidden_layer_size,
                                    out_features=possible_actions_size)
 
-    self.value_hidden1 = nn.Linear(in_features=vision_net_output + num_of_thresholds,
+    self.value_hidden1 = nn.Linear(in_features=vision_net_output + self.num_of_thresholds,
                                    out_features=hidden_layer_size)
     self.value_output = nn.Linear(in_features=hidden_layer_size,
                                   out_features=1)
 
   def pick_action(self, map_input, thresholds, collector):
     x = self.vision(map_input)
-    x = torch.cat((x, thresholds), dim=1)
+    x = torch.cat((x, torch.Tensor(thresholds)))
 
     actor_x = F.relu(self.policy_hidden1(x))
     actor_x = F.relu(self.policy_output(actor_x))
@@ -38,7 +39,10 @@ class HiveNet(nn.Module):
     collector.actions.append(action)
     collector.action_logarithms.append(
         distribution.log_prob(action))
-    return action.item()
+    def bit_representation(action, num_bits):
+        return np.unpackbits(np.uint8(action))[-num_bits:]
+        
+    return bit_representation(action.item(), num_bits = self.num_of_thresholds)
 
   def evaluate(self, state, action):
     actor_x = F.relu(self.policy_hidden1(state))
