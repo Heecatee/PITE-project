@@ -39,7 +39,10 @@ class HiveNet(nn.Module):
     collector.actions.append(action)
     collector.action_logarithms.append(
         distribution.log_prob(action))
-    return np.unpackbits(np.uint8(action.item()))[-self.num_of_thresholds:]
+    def bit_representation(action, num_bits):
+        return np.unpackbits(np.uint8(action))[-num_bits:]
+        
+    return bit_representation(action.item(), num_bits = self.num_of_thresholds)
 
   def evaluate(self, state, action):
     actor_x = F.relu(self.policy_hidden1(state))
