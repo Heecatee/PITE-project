@@ -214,7 +214,7 @@ def prepare_map_before_interpolation(resolution, step, angle_range, x_offset, y_
     x_res = resolution[0]
     y_res = resolution[1]
 
-    y_offset = random.randrange(y_res / 4, y_res * 3 / 5) if not y_offset else y_offset
+    y_offset = random.randrange(y_res / 4, y_res * 3 / 5) if y_offset == None else y_offset
     point = Point(0.0, y_offset)
     game_map = Map(point, x_offset, resolution, seed)
 
