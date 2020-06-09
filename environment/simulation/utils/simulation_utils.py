@@ -15,7 +15,10 @@ class Cluster:
         self.threshold = threshold
         self.bots = bots
 
-
+SPEED = 50
 # get angular velocity proportional to distance from threshold
 def get_bot_velocity(threshold_position, bot_position):
-    return (bot_position - threshold_position) * VELOCITY_COEFFICIENT
+    if (bot_position - threshold_position) > 0:
+        return SPEED
+    else:
+        return -SPEED

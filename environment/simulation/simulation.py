@@ -21,11 +21,11 @@ except ImportError:
 class SwarmBallSimulation(object):
     def __init__(self,
                  number_of_clusters=3,
-                 number_of_bots_per_cluster=10,
+                 number_of_bots_per_cluster=15,
                  enemy_speed=0.5,
                  difficulty=None,
                  map_segment_size=(600, 600),
-                 initial_object_height=500,
+                 initial_object_height=10,
                  screen_size=(1280, 540),
                  ticks_per_step=1,
                  ticks_per_render_frame=50,
@@ -182,7 +182,7 @@ class SwarmBallSimulation(object):
 
     def _update_screen(self):
         self._screen.fill(THECOLORS["white"])
-        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], 0)
+        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], -self.screen_size[1] / 2 + self._goal_object.body.position[1])
         if self.debug:
             pygame_utils.draw_thresholds(self._screen, self._clusters, offset, self.screen_size)
         for map_segment in self._map:
