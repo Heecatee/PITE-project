@@ -43,7 +43,6 @@ class SwarmBallSimulation(object):
         self.ticks_per_render_frame = ticks_per_render_frame
         self.difficulty = difficulty
         self.map_segment_size = map_segment_size
-        self.segment_count = 0
         self.map_width = map_width
         self.map_bottom_y_threshold = map_bottom_y_threshold
         self.gravity = gravity
@@ -52,7 +51,8 @@ class SwarmBallSimulation(object):
         # internal simulation properties
         self._simulation_is_running = True
         self._dt = 1 / 80.0
-        self._map_beginning = (-1.5*map_segment_size[0], 0.0)
+        self._segment_count = 0
+        self._current_map_end = (-1.5 * map_segment_size[0], 0.0)
         self._map_middle_right_boundary = (0.5*map_segment_size[0], 0.0)
         self._enemy_position = -1.5*map_segment_size[0]
 
@@ -88,6 +88,12 @@ class SwarmBallSimulation(object):
             self._space.remove(self._space._get_shapes())
         self._space = pymunk.Space()
         self._space.gravity = self.gravity
+
+        self._map = []
+        self._segment_count = 0
+        self._current_map_end = (-1.5 * self.map_segment_size[0], 0.0)
+        self._enemy_position = -1.5 * self.map_segment_size[0]
+
         self._init_static_scenery()
         self._init_simulation_objects()
 
@@ -106,16 +112,16 @@ class SwarmBallSimulation(object):
     def _init_static_scenery(self):
         number_of_starting_platforms = 3
         for _ in range(number_of_starting_platforms):
-            self.segment_count += 1
+            self._segment_count += 1
             map_segment, segment_end_point = pymunk_utils.create_map_segment(difficulty=self.difficulty,
                                                                              space=self._space,
-                                                                             starting_point=self._map_beginning,
+                                                                             starting_point=self._current_map_end,
                                                                              segment_size=self.map_segment_size,
                                                                              map_width=self.map_width,
-                                                                             segment_count=self.segment_count)
+                                                                             segment_count=self._segment_count)
             self._map.append(map_segment)
-            self._map_middle_right_boundary = self._map_beginning
-            self._map_beginning = segment_end_point
+            self._map_middle_right_boundary = self._current_map_end
+            self._current_map_end = segment_end_point
 
         for map_segment in self._map:
             self._space.add(map_segment)
@@ -151,18 +157,18 @@ class SwarmBallSimulation(object):
 
     def _update_map(self):
         if self._goal_object.body.position[0] > self._map_middle_right_boundary[0]:
-            self.segment_count += 1
+            self._segment_count += 1
             map_segment, segment_end_point = pymunk_utils.create_map_segment(difficulty=self.difficulty,
                                                                              space=self._space,
-                                                                             starting_point=self._map_beginning,
+                                                                             starting_point=self._current_map_end,
                                                                              segment_size=self.map_segment_size,
                                                                              map_width=self.map_width,
-                                                                             segment_count=self.segment_count)
+                                                                             segment_count=self._segment_count)
             self._space.remove(self._map[0])
             self._map.pop(0)
             self._map.append(map_segment)
-            self._map_middle_right_boundary = self._map_beginning
-            self._map_beginning = segment_end_point
+            self._map_middle_right_boundary = self._current_map_end
+            self._current_map_end = segment_end_point
             self._space.add(self._map[-1])
 
     def _process_events(self):
