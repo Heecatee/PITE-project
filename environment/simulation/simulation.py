@@ -21,7 +21,7 @@ except ImportError:
 class SwarmBallSimulation(object):
     def __init__(self,
                  number_of_clusters=3,
-                 number_of_bots_per_cluster=15,
+                 number_of_bots_per_cluster=10,
                  enemy_speed=0.5,
                  difficulty=None,
                  map_segment_size=(600, 600),
@@ -205,4 +205,3 @@ if __name__ == '__main__':
     swarmBallSimulation.reset()
     swarmBallSimulation.run()
     print(swarmBallSimulation.threshold_positions())
-
