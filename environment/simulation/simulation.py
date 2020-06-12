@@ -190,10 +190,12 @@ class SwarmBallSimulation(object):
         pygame_utils.draw_clusters(self._screen, self._clusters, offset)
         pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
         pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
-        self._clock.tick(self.ticks_per_render_frame)
 
-    def redraw(self):
+
+    def redraw(self, clock=False):
         self._update_screen()
+        if clock is True:
+            self._clock.tick(self.ticks_per_render_frame)
         pygame.display.flip()
 
 
