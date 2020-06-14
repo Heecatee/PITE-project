@@ -7,9 +7,9 @@ GOAL_OBJECT_COLOR = THECOLORS["blue"]
 MAP_COLOR = THECOLORS["black"]
 
 
-def draw_thresholds(screen, clusters, screen_size):
+def draw_thresholds(screen, clusters, offset, screen_size):
     for cluster in clusters:
-        points = [(cluster.threshold.position, 0), (cluster.threshold.position, screen_size[0])]
+        points = [(cluster.threshold.position + offset[0], 0), (cluster.threshold.position + offset[0], screen_size[1])]
         pygame.draw.lines(screen, cluster.color, False, points)
 
 

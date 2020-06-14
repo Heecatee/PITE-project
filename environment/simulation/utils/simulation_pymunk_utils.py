@@ -12,7 +12,7 @@ except ImportError:
 
 ELASTICITY = 0.3
 FRICTION = 10
-BOTS_RADIUS = 4
+BOTS_RADIUS = 5
 BOTS_MASS = 30
 GOAL_OBJECT_SIZE = (20, 20)
 GOAL_OBJECT_MASS = 3
@@ -26,12 +26,9 @@ def create_clusters(number_of_clusters, screen_size, number_of_bots_per_threshol
         color = list(numpy.random.random(size=3) * 256)
         threshold = utils.Threshold(position=random.randint(-screen_size[0]/2, screen_size[0]/2), velocity=0)
         cluster = utils.Cluster(color, threshold, bots=[])
-
         for _ in range(number_of_bots_per_threshold):
             cluster.bots.append(create_bot(threshold.position, color, screen_size))
-
         clusters.append(cluster)
-
     return clusters
 
 

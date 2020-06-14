@@ -1,4 +1,6 @@
 # Swarmball.ai
+## Documentation
+https://docs.google.com/document/d/1d17AlUiGnsbga3XQSN1vrIGNN-0AY6xPdZwqkYeZTHM/edit?usp=sharing
 ## Participants
 * Maria Korkuć
 * Wioletta Kurek
@@ -31,3 +33,6 @@ The steering is going to be fully automated with **artificial intelligence**, ad
 
 This project is mainly aimed at introducing everyone involved to the concepts of deep reinforcement learning, in an end-to-end machine learning project. First, we wil learn how to prepare our own environment from  scratch using python wrappers for phisics engines. After that, we will plan out the training using techniques such as a2c and from that we will dive into the  state-of-art PPO. All that will be done using PyTorch - a deep learning framework, currently leading in the field of deep learning research.
 The next step will introduce us to a process of tuning and training the model in a fast sparse environments or using our own GPU boosted machines. All that will hopefully lead us to a working product, and most of all, every single one of us will be able to say that they truely made an Artificial Intelligence.
+
+### Preview
+![](https://i.imgur.com/waH6dxF.gif)

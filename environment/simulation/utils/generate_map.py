@@ -6,8 +6,11 @@ import numpy as np
 from scipy.interpolate import splprep, splev
 from collections import namedtuple
 
+IS_BEHIND_PREVIOUS_POINT = False
+IS_ABOVE_PREVIOUS_POINT = False
+
 Y_CEILING_LIMIT = 20
-LOOP_ELIMINATION_ACCURACY = 3
+LOOP_ELIMINATION_ACCURACY = 1
 TAKING_STEP_BACK_PROBABILITY = 0.3
 INTERPOLATION_K = 3
 
@@ -143,7 +146,6 @@ class Map:
 
     def save_to_file(self, filename='test_map.png', fill=False):
         plt.clf()
-        plt.figure(figsize=(self.resolution[0], self.resolution[1]))
         plt.xlim(self.x_offset, self.resolution[0] + self.x_offset)
         plt.ylim(0.0, self.resolution[1])
         if fill:
@@ -173,6 +175,8 @@ class Difficulty(IntEnum):
 
 def generate_next_point(prev_point, step, alpha, y_resolution):
     """Function returning next random point for the generalized map"""
+    global IS_ABOVE_PREVIOUS_POINT
+    global IS_BEHIND_PREVIOUS_POINT
     y_range = 2 * step * math.tan(alpha / 2)
 
     y_min = prev_point.y - y_range / 2
@@ -180,13 +184,23 @@ def generate_next_point(prev_point, step, alpha, y_resolution):
     y_max = prev_point.y + y_range / 2
     y_max = y_max if y_max < y_resolution - Y_CEILING_LIMIT else y_resolution - Y_CEILING_LIMIT
 
+    if IS_BEHIND_PREVIOUS_POINT:
+        if IS_ABOVE_PREVIOUS_POINT:
+            y_min = prev_point.y + 5
+        else:
+            y_max = prev_point.y - 5
+
+
     p = random.random()
-    if p >= TAKING_STEP_BACK_PROBABILITY:
+    if p >= TAKING_STEP_BACK_PROBABILITY or IS_BEHIND_PREVIOUS_POINT:
         x = prev_point.x + step
+        IS_BEHIND_PREVIOUS_POINT = False
     else:
         x = prev_point.x - step if prev_point.x > step else prev_point.x + step
+        IS_BEHIND_PREVIOUS_POINT = True
 
     y = random.uniform(y_min, y_max)
+    IS_ABOVE_PREVIOUS_POINT = True if y > prev_point.y else False
 
     next_point = Point(x, y)
 
@@ -200,7 +214,7 @@ def prepare_map_before_interpolation(resolution, step, angle_range, x_offset, y_
     x_res = resolution[0]
     y_res = resolution[1]
 
-    y_offset = random.randrange(y_res / 4, y_res * 3 / 5) if not y_offset else y_offset
+    y_offset = random.randrange(y_res / 4, y_res * 3 / 5) if y_offset == None else y_offset
     point = Point(0.0, y_offset)
     game_map = Map(point, x_offset, resolution, seed)
 
@@ -224,7 +238,7 @@ def get_level_parameters(diff_level, x_res):
     angle_range = None
 
     if diff_level == Difficulty.PATHETIC:
-        step = x_res / 4
+        step = x_res / 3
         angle_range = 0
 
     elif diff_level == Difficulty.EASY:
@@ -240,12 +254,12 @@ def get_level_parameters(diff_level, x_res):
         angle_range = 15 * math.pi / 18
 
     elif diff_level == Difficulty.REALLY_HARD:
-        step = x_res / 120
+        step = x_res / 150
         angle_range = 16 * math.pi / 18
 
     elif diff_level == Difficulty.WTF:
-        step = x_res / 150
-        angle_range = 16 * math.pi / 18
+        step = x_res / 180
+        angle_range = 17 * math.pi / 18
 
     return step, angle_range
 
