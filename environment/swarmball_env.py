@@ -1,6 +1,7 @@
 import gym
 from gym import spaces, logger
 from gym.utils import seeding
+import numpy as np
 
 try:
     from .simulation.simulation import SwarmBallSimulation
@@ -24,7 +25,7 @@ class SwarmBall(gym.Env):
         for i in range(self.cluster_count):
             self.sim.update_thresholds_position(i, self.sim.threshold_positions()[i] + self.thresh_vel[i])
         self.sim.step()
-        observations = {'picture': self.sim.space_near_goal_object(), 'thresholds': self.sim.threshold_positions()}
+        observations = {'picture': self.sim.space_near_goal_object(), 'thresholds': np.array(self.sim.threshold_positions()) - self.sim._goal_object.body.position[0]}
         return observations, self.reward(), self.sim._enemy_position >= self.sim._goal_object.body.position[0] , {'message': 'You look great today cutiepie!'}
 
     def reset(self):
@@ -32,7 +33,7 @@ class SwarmBall(gym.Env):
         self.sim.reset()
         self.goal_prev_pos = self.sim._goal_object.body.position[0]
         self.initial_goal_position = self.sim._goal_object.body.position[0]
-        return {'picture': self.sim.space_near_goal_object(), 'thresholds': self.sim.threshold_positions()}
+        return {'picture': self.sim.space_near_goal_object(), 'thresholds': np.array(self.sim.threshold_positions()) - self.sim._goal_object.body.position[0]}
 
     def render(self):
         self.sim.redraw()
