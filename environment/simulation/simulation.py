@@ -144,7 +144,6 @@ class SwarmBallSimulation(object):
     def _update_simulation_objects(self):
         self._update_bots()
         self._enemy_speed += math.log1p(self.enemy_acceleration)
-        print(self._enemy_speed)
         self._enemy_position += self._enemy_speed
 
     def _update_bots(self):
