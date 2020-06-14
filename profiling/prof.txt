@@ -1,0 +1,84 @@
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      322    0.008    0.000   22.310    0.069 swarmball_env.py:28(step)
+      322    0.002    0.000   22.119    0.069 simulation.py:82(space_near_goal_object)
+      322    0.012    0.000   20.715    0.064 simulation.py:177(_update_screen)
+      966    3.044    0.003   20.408    0.021 simulation_pygame_utils.py:28(draw_map)
+   578634    6.963    0.000    7.765    0.000 {built-in method pygame.draw.line}
+  1158556    1.390    0.000    2.518    0.000 vec2d.py:166(__add__)
+  1168538    1.667    0.000    2.422    0.000 pygame_util.py:176(to_pygame)
+   578634    1.572    0.000    2.257    0.000 shapes.py:388(_get_a)
+   578634    0.953    0.000    1.498    0.000 shapes.py:393(_get_b)
+  2318400    1.276    0.000    1.452    0.000 vec2d.py:75(__init__)
+      322    1.402    0.004    1.402    0.004 {built-in method pygame.image.tostring}
+  1190744    0.897    0.000    1.262    0.000 vec2d.py:67(_fromcffi)
+  4664480    1.137    0.000    1.137    0.000 vec2d.py:91(__getitem__)
+  2314536    0.434    0.000    0.434    0.000 {built-in method builtins.hasattr}
+  1190746    0.365    0.000    0.365    0.000 {built-in method __new__ of type object at 0x8fd5e0}
+  1158556    0.346    0.000    0.346    0.000 {built-in method builtins.isinstance}
+  1168538    0.244    0.000    0.244    0.000 {method 'get_height' of 'pygame.Surface' objects}
+  1157268    0.181    0.000    0.181    0.000 vec2d.py:102(__len__)
+      322    0.002    0.000    0.164    0.001 simulation.py:94(step)
+      322    0.120    0.000    0.120    0.000 {method 'fill' of 'pygame.Surface' objects}
+      322    0.029    0.000    0.110    0.000 simulation_pygame_utils.py:21(draw_clusters)
+      322    0.001    0.000    0.097    0.000 simulation.py:135(_update_simulation_objects)
+      322    0.031    0.000    0.096    0.000 simulation.py:139(_update_bots)
+    32188    0.056    0.000    0.088    0.000 body.py:209(_get_position)
+      322    0.057    0.000    0.057    0.000 space.py:368(step)
+      322    0.002    0.000    0.031    0.000 simulation_pygame_utils.py:35(draw_goal_object)
+      322    0.023    0.000    0.023    0.000 {method 'tick' of 'Clock' objects}
+     9660    0.021    0.000    0.021    0.000 {built-in method pygame.draw.circle}
+      322    0.019    0.000    0.019    0.000 {built-in method builtins.print}
+      322    0.005    0.000    0.016    0.000 simulation_pygame_utils.py:37(<listcomp>)
+      322    0.004    0.000    0.012    0.000 swarmball_env.py:18(reward)
+     9660    0.011    0.000    0.011    0.000 shapes.py:337(_get_radius)
+     9660    0.011    0.000    0.011    0.000 body.py:270(_set_angular_velocity)
+    40882    0.009    0.000    0.009    0.000 shapes.py:182(_get_body)
+      322    0.002    0.000    0.009    0.000 simulation.py:168(_process_events)
+      322    0.005    0.000    0.007    0.000 simulation.py:152(_update_map)
+      322    0.007    0.000    0.007    0.000 {built-in method pygame.event.get}
+      322    0.005    0.000    0.007    0.000 shapes.py:559(get_vertices)
+      322    0.001    0.000    0.006    0.000 simulation_pygame_utils.py:16(draw_enemy)
+     1288    0.003    0.000    0.005    0.000 vec2d.py:346(rotated)
+      322    0.005    0.000    0.005    0.000 {built-in method pygame.draw.lines}
+      966    0.001    0.000    0.004    0.000 random.py:285(choice)
+     1288    0.002    0.000    0.004    0.000 simulation.py:78(threshold_positions)
+      322    0.001    0.000    0.004    0.000 simulation_pygame_utils.py:39(<listcomp>)
+     9660    0.003    0.000    0.003    0.000 simulation_utils.py:20(get_bot_velocity)
+      966    0.002    0.000    0.002    0.000 random.py:250(_randbelow_with_getrandbits)
+      322    0.002    0.000    0.002    0.000 {built-in method pygame.draw.polygon}
+     1288    0.002    0.000    0.002    0.000 simulation.py:79(<listcomp>)
+     1288    0.002    0.000    0.002    0.000 body.py:252(_get_angle)
+      322    0.001    0.000    0.001    0.000 swarmball_env.py:29(<listcomp>)
+     1288    0.001    0.000    0.001    0.000 {built-in method math.cos}
+      966    0.001    0.000    0.001    0.000 simulation.py:74(update_thresholds_position)
+     1904    0.000    0.000    0.000    0.000 {method 'getrandbits' of '_random.Random' objects}
+     1614    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+     1288    0.000    0.000    0.000    0.000 {built-in method math.sin}
+      966    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+      966    0.000    0.000    0.000    0.000 {method 'bit_length' of 'int' objects}
+      644    0.000    0.000    0.000    0.000 {method 'clear' of 'set' objects}
+        2    0.000    0.000    0.000    0.000 api.py:911(__getattr__)
+        2    0.000    0.000    0.000    0.000 api.py:900(make_accessor)
+        2    0.000    0.000    0.000    0.000 api.py:834(accessor_function)
+        2    0.000    0.000    0.000    0.000 api.py:433(_get_cached_btype)
+      8/2    0.000    0.000    0.000    0.000 model.py:56(get_cached_btype)
+        2    0.000    0.000    0.000    0.000 model.py:242(build_backend_type)
+    30/12    0.000    0.000    0.000    0.000 model.py:81(__hash__)
+        2    0.000    0.000    0.000    0.000 model.py:586(global_cache)
+    30/12    0.000    0.000    0.000    0.000 {built-in method builtins.hash}
+       34    0.000    0.000    0.000    0.000 model.py:68(_get_items)
+       34    0.000    0.000    0.000    0.000 model.py:69(<listcomp>)
+        2    0.000    0.000    0.000    0.000 {method 'setdefault' of 'dict' objects}
+        2    0.000    0.000    0.000    0.000 {method 'load_function' of '_cffi_backend.Library' objects}
+        2    0.000    0.000    0.000    0.000 weakref.py:159(__setitem__)
+        2    0.000    0.000    0.000    0.000 {built-in method _cffi_backend.new_function_type}
+        2    0.000    0.000    0.000    0.000 weakref.py:323(__new__)
+       60    0.000    0.000    0.000    0.000 {built-in method builtins.getattr}
+        1    0.000    0.000    0.000    0.000 cProfile.py:133(__exit__)
+        2    0.000    0.000    0.000    0.000 model.py:74(__eq__)
+        2    0.000    0.000    0.000    0.000 weakref.py:328(__init__)
+        2    0.000    0.000    0.000    0.000 weakref.py:128(__getitem__)
+        2    0.000    0.000    0.000    0.000 weakref.py:189(get)
+        2    0.000    0.000    0.000    0.000 {method 'acquire' of '_thread.lock' objects}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        2    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
