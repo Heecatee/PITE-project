@@ -22,7 +22,7 @@ def draw_clusters(screen, clusters, offset):
     for cluster in clusters:
         for bot in cluster.bots:
             position = pymunk.pygame_util.to_pygame(bot.body.position, screen)
-            pygame.draw.circle(screen, bot.color, (position[0]+int(offset[0]), position[1]), int(bot.radius))
+            pygame.draw.circle(screen, bot.color, (position[0]+int(offset[0]), position[1]+int(offset[1])), int(bot.radius))
 
 
 def draw_map(screen, map_segment, offset, map_width):
@@ -34,7 +34,7 @@ def draw_map(screen, map_segment, offset, map_width):
 
 def draw_goal_object(screen, goal_object, screen_size):
     body = goal_object.body
-    points = [point.rotated(body.angle) + pymunk.Vec2d(screen_size[0]/2, body.position[1]) for point in goal_object.get_vertices()]
+    points = [point.rotated(body.angle) + pymunk.Vec2d(screen_size[0]//2, screen_size[1]//2) for point in goal_object.get_vertices()]
     points.append(points[0])
     ps = [pymunk.pygame_util.to_pygame(point, screen) for point in points]
     pygame.draw.polygon(screen, GOAL_OBJECT_COLOR, ps)
