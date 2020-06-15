@@ -25,7 +25,7 @@ class SwarmBallSimulation(object):
                  enemy_speed=0.5,
                  difficulty=None,
                  map_segment_size=(600, 600),
-                 initial_object_height=500,
+                 initial_object_height=10,
                  screen_size=(1280, 540),
                  ticks_per_step=1,
                  ticks_per_render_frame=50,
@@ -182,7 +182,7 @@ class SwarmBallSimulation(object):
 
     def _update_screen(self):
         self._screen.fill(THECOLORS["white"])
-        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], 0)
+        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], -self.screen_size[1] / 2 + self._goal_object.body.position[1])
         if self.debug:
             pygame_utils.draw_thresholds(self._screen, self._clusters, offset, self.screen_size)
         for map_segment in self._map:
@@ -190,10 +190,12 @@ class SwarmBallSimulation(object):
         pygame_utils.draw_clusters(self._screen, self._clusters, offset)
         pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
         pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
-        self._clock.tick(self.ticks_per_render_frame)
 
-    def redraw(self):
+
+    def redraw(self, clock=False):
         self._update_screen()
+        if clock is True:
+            self._clock.tick(self.ticks_per_render_frame)
         pygame.display.flip()
 
 
@@ -203,4 +205,3 @@ if __name__ == '__main__':
     swarmBallSimulation.reset()
     swarmBallSimulation.run()
     print(swarmBallSimulation.threshold_positions())
-
