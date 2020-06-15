@@ -22,8 +22,10 @@ SEGMENTS_PER_DIFFICULTY = 3
 
 def create_clusters(number_of_clusters, screen_size, number_of_bots_per_threshold):
     clusters = []
-    for _ in range(number_of_clusters):
-        color = list(numpy.random.random(size=3) * 256)
+    for cluster_nr in range(number_of_clusters):
+        color = numpy.array([100, 100, 100])
+        color[cluster_nr % color.shape[0]] += (cluster_nr + 1) * 37
+        color[cluster_nr % color.shape[0]] = color[cluster_nr % color.shape[0]] % 256
         threshold = utils.Threshold(position=random.randint(-screen_size[0]/2, screen_size[0]/2), velocity=0)
         cluster = utils.Cluster(color, threshold, bots=[])
         for _ in range(number_of_bots_per_threshold):
