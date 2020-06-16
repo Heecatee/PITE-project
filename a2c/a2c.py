@@ -30,10 +30,12 @@ class A2CTrainer:
     def calculate_critic_loss(self, advantage):
         return 0.5 * advantage.pow(2).mean()
 
-    def train(self):
+    def train(self, make_video = False):
         self.data.clear_previous_batch_data()
-        self.data.collect_data_for(batch_size=self.batch_size)
+        self.data.collect_data_for(batch_size=self.batch_size, make_video=make_video)
         self.data.stack_data()
+        
+        images = self.data.images
 
         action_logarithms, Qval, entropy = self.new_net.evaluate(
             self.data.states, self.data.actions)
@@ -51,4 +53,4 @@ class A2CTrainer:
         self.optimizer.step()
 
         self.net.load_state_dict(self.new_net.state_dict())
-        return sum(self.data.rewards), self.net
+        return sum(self.data.rewards), self.net, images
