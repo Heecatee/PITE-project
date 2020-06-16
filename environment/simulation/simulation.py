@@ -26,7 +26,7 @@ class SwarmBallSimulation(object):
                  difficulty=None,
                  map_segment_size=(600, 600),
                  initial_object_height=10,
-                 screen_size=(1280, 840),
+                 screen_size=(1800, 840),
                  ticks_per_step=1,
                  ticks_per_render_frame=50,
                  gravity=(0.0, -900),
@@ -144,7 +144,6 @@ class SwarmBallSimulation(object):
     def _update_simulation_objects(self):
         self._update_bots()
         self._enemy_position += self.enemy_speed
-        print(type(self._screen.toimage()))
 
     def _update_bots(self):
         for cluster in self._clusters:
@@ -187,7 +186,7 @@ class SwarmBallSimulation(object):
 
     def _update_map_sprite(self):
         self._screen.fill(THECOLORS["white"])
-        self._map_offset = (self._current_map_end[0] - 2.5 * self.map_segment_size[0],
+        self._map_offset = (self._current_map_end[0] - 3 * self.map_segment_size[0],
                             self.screen_size[1] // 2 - self._goal_object.body.position[1])
         for map_segment in self._map:
             pygame_utils.draw_map(self._screen, map_segment, self.map_width,
