@@ -13,6 +13,7 @@ class DataCollector:
         self.render = False
         self.actions = []
         self.Qval = 0
+        self.images = []
 
     def clear_previous_batch_data(self):
         self.np_Qvals = []
@@ -21,6 +22,7 @@ class DataCollector:
         self.states = []
         self.actions = []
         self.Qval = 0
+        self.images = []
 
     def calculate_qvals(self):
         Qval = 0
@@ -30,17 +32,21 @@ class DataCollector:
             Qvals.insert(0, Qval)
         return torch.tensor(Qvals)
 
-    def collect_data_for(self, batch_size):
+    def collect_data_for(self, batch_size, make_video = False):
         current_state = self.env.reset()
         for simulation_step in range(batch_size):
 
             if self.render:
                 self.env.render()
-
+            
             action = self.net.pick_action(
                 current_state['picture'], current_state['thresholds'], self)
             observation, reward, done, _ = self.env.step(action)
             self.rewards.append(reward)
+            
+            if make_video:
+                self.images.append(observation['picture'])
+                
             current_state = observation
             if done or simulation_step == batch_size - 1:
                 self.Qval = self.calculate_qvals()
