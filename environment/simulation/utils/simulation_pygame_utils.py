@@ -25,11 +25,11 @@ def draw_clusters(screen, clusters, offset):
             pygame.draw.circle(screen, bot.color, (position[0]+int(offset[0]), position[1]+int(offset[1])), int(bot.radius))
 
 
-def draw_map(screen, map_segment, offset, map_width):
+def draw_map(screen, map_segment, map_width, map_offset):
     for fragment in map_segment:
         p1_translated = pymunk.pygame_util.to_pygame(fragment.a, screen)
         p2_translated = pymunk.pygame_util.to_pygame(fragment.b, screen)
-        pygame.draw.line(screen, MAP_COLOR, p1_translated+pymunk.Vec2d(offset), p2_translated+pymunk.Vec2d(offset), 2*map_width)
+        pygame.draw.line(screen, MAP_COLOR, p1_translated - pymunk.Vec2d(map_offset), p2_translated - pymunk.Vec2d(map_offset), 2*map_width)
 
 
 def draw_goal_object(screen, goal_object, screen_size):
