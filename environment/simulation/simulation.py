@@ -26,12 +26,12 @@ class SwarmBallSimulation(object):
                  difficulty=None,
                  map_segment_size=(600, 600),
                  initial_object_height=10,
-                 screen_size=(1280, 540),
+                 screen_size=(1800, 840),
                  ticks_per_step=1,
                  ticks_per_render_frame=50,
                  gravity=(0.0, -900),
                  map_bottom_y_threshold=-300,
-                 map_width=3
+                 map_width=5
                  ):
         # external simulation properties
         self.debug = False
@@ -58,6 +58,7 @@ class SwarmBallSimulation(object):
 
         # internal simulation objects
         self._map = []
+        self._map_sprite = None
         self._space = None
         self._enemy = None
         self._clusters = None
@@ -94,8 +95,9 @@ class SwarmBallSimulation(object):
         self._current_map_end = (-1.5 * self.map_segment_size[0], 0.0)
         self._enemy_position = -1.5 * self.map_segment_size[0]
 
-        self._init_static_scenery()
+
         self._init_simulation_objects()
+        self._init_static_scenery()
 
     def step(self):
         for _ in range(self.ticks_per_step):
@@ -125,6 +127,7 @@ class SwarmBallSimulation(object):
 
         for map_segment in self._map:
             self._space.add(map_segment)
+        self._update_map_sprite()
 
     def _init_simulation_objects(self):
         self._clusters = pymunk_utils.create_clusters(self.number_of_clusters,
@@ -170,6 +173,7 @@ class SwarmBallSimulation(object):
             self._map_middle_right_boundary = self._current_map_end
             self._current_map_end = segment_end_point
             self._space.add(self._map[-1])
+            self._update_map_sprite()
 
     def _process_events(self):
         for event in pygame.event.get():
@@ -180,17 +184,25 @@ class SwarmBallSimulation(object):
             elif event.type == KEYDOWN and event.key == K_p:
                 pygame.image.save(self._screen, "swarm_ball_simulation.png")
 
+    def _update_map_sprite(self):
+        self._screen.fill(THECOLORS["white"])
+        self._map_offset = (self._current_map_end[0] - 3 * self.map_segment_size[0],
+                            self.screen_size[1] // 2 - self._goal_object.body.position[1])
+        for map_segment in self._map:
+            pygame_utils.draw_map(self._screen, map_segment, self.map_width,
+                                  map_offset=self._map_offset)
+        self._map_sprite = self._screen.copy()
+
     def _update_screen(self):
         self._screen.fill(THECOLORS["white"])
-        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0], -self.screen_size[1] / 2 + self._goal_object.body.position[1])
+        offset = (self.screen_size[0] / 2 - self._goal_object.body.position[0],
+                  -self.screen_size[1] // 2 + self._goal_object.body.position[1])
+        self._screen.blit(self._map_sprite, (offset[0]+self._map_offset[0], offset[1]+self._map_offset[1]))
         if self.debug:
             pygame_utils.draw_thresholds(self._screen, self._clusters, offset, self.screen_size)
-        for map_segment in self._map:
-            pygame_utils.draw_map(self._screen, map_segment, offset, self.map_width)
         pygame_utils.draw_clusters(self._screen, self._clusters, offset)
         pygame_utils.draw_enemy(self._screen, self._enemy_position, offset, self.screen_size)
         pygame_utils.draw_goal_object(self._screen, self._goal_object, self.screen_size)
-
 
     def redraw(self, clock=False):
         self._update_screen()
