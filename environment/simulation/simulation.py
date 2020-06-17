@@ -97,6 +97,7 @@ class SwarmBallSimulation(object):
         self._segment_count = 0
         self._current_map_end = (-1.5 * self.map_segment_size[0], 0.0)
         self._enemy_position = -1.5 * self.map_segment_size[0]
+        self._enemy_speed = 0
 
 
         self._init_simulation_objects()
