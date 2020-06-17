@@ -15,9 +15,9 @@ class HiveNet(nn.Module):
 
         super(HiveNet, self).__init__()
         self.vision = HiveNetVision(kernel_size, stride, outputs=vision_net_output)
+        self.num_of_thresholds = num_of_thresholds
         self.policy_hidden1 = nn.Linear(in_features=vision_net_output + time_steps_stored*self.num_of_thresholds,
                                         out_features=hidden_layer_size)
-        self.num_of_thresholds = num_of_thresholds
         self.thresholds_history = None
         self.time_steps_stored = time_steps_stored
         possible_actions_size = actions_per_threshold * self.num_of_thresholds
