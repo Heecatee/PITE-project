@@ -5,6 +5,8 @@ from torch.nn import functional as F
 from torch.distributions import Categorical
 from .hive_vision.HiveNetVision import HiveNetVision
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class HiveNet(nn.Module):
     def __init__(self, kernel_size, stride, num_of_thresholds,
@@ -14,20 +16,21 @@ class HiveNet(nn.Module):
                  time_steps_stored=2):
 
         super(HiveNet, self).__init__()
-        self.vision = HiveNetVision(kernel_size, stride, outputs=vision_net_output)
+        self.vision = HiveNetVision(
+            kernel_size, stride, outputs=vision_net_output).to(device)
         self.num_of_thresholds = num_of_thresholds
-        self.policy_hidden1 = nn.Linear(in_features=vision_net_output + time_steps_stored*self.num_of_thresholds,
-                                        out_features=hidden_layer_size)
+        self.policy_hidden1 = nn.Linear(in_features=vision_net_output + time_steps_stored * self.num_of_thresholds,
+                                        out_features=hidden_layer_size).to(device)
         self.thresholds_history = None
         self.time_steps_stored = time_steps_stored
         possible_actions_size = actions_per_threshold * self.num_of_thresholds
         self.policy_output = nn.Linear(in_features=hidden_layer_size,
-                                       out_features=possible_actions_size)
+                                       out_features=possible_actions_size).to(device)
 
-        self.value_hidden1 = nn.Linear(in_features=vision_net_output + time_steps_stored*self.num_of_thresholds,
-                                       out_features=hidden_layer_size)
+        self.value_hidden1 = nn.Linear(in_features=vision_net_output + time_steps_stored * self.num_of_thresholds,
+                                       out_features=hidden_layer_size).to(device)
         self.value_output = nn.Linear(in_features=hidden_layer_size,
-                                      out_features=1)
+                                      out_features=1).to(device)
 
     def update_thresholds_history(self, new_thresholds):
         if self.thresholds_history is None:
@@ -40,17 +43,17 @@ class HiveNet(nn.Module):
         return self.thresholds_history
 
     def pick_action(self, map_input, thresholds, collector):
-        new_thresholds = torch.Tensor(thresholds)
+        new_thresholds = torch.Tensor(thresholds).to(device)
         self.update_thresholds_history(new_thresholds)
 
-        x = self.vision(map_input)
-        x = torch.cat([x, *self.thresholds_history])
+        x = self.vision(map_input).to(device)
+        x = torch.cat([x, *self.thresholds_history]).to(device)
 
-        actor_x = F.relu(self.policy_hidden1(x))
-        actor_x = F.relu(self.policy_output(actor_x))
-        action_probabilities = F.softmax(actor_x)
-        distribution = Categorical(action_probabilities)
-        action = distribution.sample()
+        actor_x = F.relu(self.policy_hidden1(x)).to(device)
+        actor_x = F.relu(self.policy_output(actor_x)).to(device)
+        action_probabilities = F.softmax(actor_x).to(device)
+        distribution = Categorical(action_probabilities).to(device)
+        action = distribution.sample().to(device)
 
         collector.states.append(x)
         collector.actions.append(action)
@@ -63,15 +66,15 @@ class HiveNet(nn.Module):
         return bit_representation(action.item(), num_bits=self.num_of_thresholds)
 
     def evaluate(self, state, action):
-        actor_x = F.relu(self.policy_hidden1(state))
-        actor_x = F.relu(self.policy_output(actor_x))
-        probabilities = F.softmax(actor_x)
-        distribution = Categorical(probabilities)
-        logarithm_probabilities = distribution.log_prob(action)
-        entropy = distribution.entropy()
+        actor_x = F.relu(self.policy_hidden1(state)).to(device)
+        actor_x = F.relu(self.policy_output(actor_x)).to(device)
+        probabilities = F.softmax(actor_x).to(device)
+        distribution = Categorical(probabilities).to(device)
+        logarithm_probabilities = distribution.log_prob(action).to(device)
+        entropy = distribution.entropy().to(device)
 
-        critic_x = F.relu(self.value_hidden1(state))
-        critic_x = F.relu(self.value_output(critic_x))
-        Qvalue = F.tanh(critic_x)
+        critic_x = F.relu(self.value_hidden1(state)).to(device)
+        critic_x = F.relu(self.value_output(critic_x)).to(device)
+        Qvalue = F.tanh(critic_x).to(device)
 
         return logarithm_probabilities, torch.squeeze(Qvalue), entropy
