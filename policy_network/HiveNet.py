@@ -69,7 +69,7 @@ class HiveNet(nn.Module):
         actor_x = F.relu(self.policy_hidden1(state)).to(device)
         actor_x = F.relu(self.policy_output(actor_x)).to(device)
         probabilities = F.softmax(actor_x).to(device)
-        distribution = Categorical(probabilities).to(device)
+        distribution = Categorical(probabilities)
         logarithm_probabilities = distribution.log_prob(action).to(device)
         entropy = distribution.entropy().to(device)
 
