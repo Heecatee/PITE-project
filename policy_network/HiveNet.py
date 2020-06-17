@@ -52,7 +52,7 @@ class HiveNet(nn.Module):
         actor_x = F.relu(self.policy_hidden1(x)).to(device)
         actor_x = F.relu(self.policy_output(actor_x)).to(device)
         action_probabilities = F.softmax(actor_x).to(device)
-        distribution = Categorical(action_probabilities).to(device)
+        distribution = Categorical(action_probabilities)
         action = distribution.sample().to(device)
 
         collector.states.append(x)
