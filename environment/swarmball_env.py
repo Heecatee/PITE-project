@@ -22,8 +22,7 @@ class SwarmBall(gym.Env):
         return points
 
     def step(self, action):
-        self.thresh_vel = [self.thresh_vel[i] + action[i] *
-                           self.acc_factor for i in range(self.cluster_count)]
+        self.thresh_vel = [self.thresh_vel[i] + (2*action[i]-1) * self.acc_factor for i in range(self.cluster_count)]
         for i in range(self.cluster_count):
             self.sim.update_thresholds_position(
                 i, self.sim.threshold_positions()[i] + self.thresh_vel[i])
