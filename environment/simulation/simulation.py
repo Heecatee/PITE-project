@@ -1,3 +1,5 @@
+import math
+
 import pygame
 from pygame.color import THECOLORS
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, K_p
@@ -22,7 +24,7 @@ class SwarmBallSimulation(object):
     def __init__(self,
                  number_of_clusters=3,
                  number_of_bots_per_cluster=10,
-                 enemy_speed=0.5,
+                 enemy_acceleration=0.005,
                  difficulty=None,
                  map_segment_size=(600, 600),
                  initial_object_height=10,
@@ -37,7 +39,7 @@ class SwarmBallSimulation(object):
         self.debug = False
         self.number_of_clusters = number_of_clusters
         self.number_of_bots_per_cluster = number_of_bots_per_cluster
-        self.enemy_speed = enemy_speed
+        self.enemy_acceleration = enemy_acceleration
         self.initial_object_position = (0.0, initial_object_height)
         self.ticks_per_step = ticks_per_step
         self.ticks_per_render_frame = ticks_per_render_frame
@@ -54,7 +56,8 @@ class SwarmBallSimulation(object):
         self._segment_count = 0
         self._current_map_end = (-1.5 * map_segment_size[0], 0.0)
         self._map_middle_right_boundary = (0.5*map_segment_size[0], 0.0)
-        self._enemy_position = -1.5*map_segment_size[0]
+        self._enemy_position = -map_segment_size[0]
+        self._enemy_speed = 0
 
         # internal simulation objects
         self._map = []
@@ -143,7 +146,8 @@ class SwarmBallSimulation(object):
 
     def _update_simulation_objects(self):
         self._update_bots()
-        self._enemy_position += self.enemy_speed
+        self._enemy_speed += math.log1p(self.enemy_acceleration)
+        self._enemy_position += self._enemy_speed
 
     def _update_bots(self):
         for cluster in self._clusters:

@@ -15,7 +15,8 @@ def draw_thresholds(screen, clusters, offset, screen_size):
 
 def draw_enemy(screen, position, offset, screen_size):
     points = [(position+offset[0], 0), (position+offset[0], screen_size[0])]
-    pygame.draw.lines(screen, THECOLORS["red"], False, points)
+    wand_img = pygame.image.load('assets/wand.png')
+    screen.blit(wand_img, (position+offset[0] - 31, 0))
 
 
 def draw_clusters(screen, clusters, offset):
