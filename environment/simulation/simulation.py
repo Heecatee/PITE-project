@@ -85,7 +85,7 @@ class SwarmBallSimulation(object):
     # output
     def space_near_goal_object(self):
         self._update_screen()
-        return pygame.image.tostring(self._screen, "RGB")
+        return pygame.image.tostring(pygame.transform.scale(self._screen.copy(), (720, 280)), "RGB")
 
     def reset(self):
         if self._space is not None:

@@ -1,5 +1,5 @@
 import torch
-import pygame
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -47,7 +47,7 @@ class DataCollector:
             self.rewards.append(reward)
 
             if make_video:
-                self.images.append(pygame.transform.scale(observation['picture'], (720, 280)))
+                self.images.append(observation['picture'])
 
             current_state = observation
             if done or simulation_step == batch_size - 1:
