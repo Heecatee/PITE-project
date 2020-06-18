@@ -63,7 +63,7 @@ class HiveNet(nn.Module):
         def bit_representation(action, num_bits):
             return np.unpackbits(np.uint8(action))[-num_bits:]
 
-        return bit_representation(action.item(), num_bits=self.num_of_thresholds)
+        return bit_representation(action.item(), num_bits=self.num_of_thresholds).astype(int)
 
     def evaluate(self, state, action):
         actor_x = F.relu(self.policy_hidden1(state)).to(device)
