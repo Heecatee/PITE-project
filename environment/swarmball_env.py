@@ -10,10 +10,11 @@ except ImportError:
 
 
 class SwarmBall(gym.Env):
-    def __init__(self, acc_factor=0.25, number_of_clusters=3, **kwargs):
+    def __init__(self, acc_factor=0.25, number_of_clusters=3, v_max=10, **kwargs):
         self.sim = SwarmBallSimulation(number_of_clusters, **kwargs)
         self.cluster_count = number_of_clusters
-        self.thresh_vel = [0 for _ in range(number_of_clusters)]
+        self.thresh_vel = np.zeros(number_of_clusters)
+        self.v_max = v_max
         self.acc_factor = acc_factor
 
     def reward(self):
@@ -22,7 +23,8 @@ class SwarmBall(gym.Env):
         return points
 
     def step(self, action):
-        self.thresh_vel = [self.thresh_vel[i] + (2*action[i]-1) * self.acc_factor for i in range(self.cluster_count)]
+        self.thresh_vel = self.thresh_vel + (2*action-1) * self.acc_factor
+        self.thresh_vel = np.clip(self.thresh_vel, -self.v_max, self.v_max)
         for i in range(self.cluster_count):
             self.sim.update_thresholds_position(
                 i, self.sim.threshold_positions()[i] + self.thresh_vel[i])
