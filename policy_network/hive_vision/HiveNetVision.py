@@ -42,7 +42,7 @@ class HiveNetVision(nn.Module):
 
     def forward(self, map_image):
         map_image = Image.frombytes(
-            mode='RGB', size=(1280, 540), data=map_image)
+            mode='RGB', size=(720, 280), data=map_image)
         x = self.process_image_input(map_image).to(device)
 
         if self.map_history is None:
