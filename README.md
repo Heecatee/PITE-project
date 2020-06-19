@@ -1,6 +1,13 @@
 # Swarmball.ai
 ## Documentation
 https://docs.google.com/document/d/1d17AlUiGnsbga3XQSN1vrIGNN-0AY6xPdZwqkYeZTHM/edit?usp=sharing
+
+## Colab notebook for training process
+https://colab.research.google.com/drive/1zzOHM2ZQ7ESPBAjRknpCUscERr9TqC0n?usp=sharing
+
+## See our experiments live on Neptune
+https://ui.neptune.ai/pradon/Swarmball/wiki/README-38a25739-c6f3-4923-94c5-9fb4ac5afaf4
+
 ## Participants
 * Maria Korkuć
 * Wioletta Kurek
