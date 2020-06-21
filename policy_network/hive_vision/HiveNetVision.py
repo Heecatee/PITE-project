@@ -10,7 +10,8 @@ class HiveNetVision(nn.Module):
     def __init__(self, kernel_size, stride, outputs,
                  hidden_layer_dims=(16, 32),
                  frames_per_input=3,
-                 image_compressed_size=(90, 60)):
+                 image_compressed_size=(480, 360),
+                 input_shape=(720, 540)):
 
         super(HiveNetVision, self).__init__()
 
@@ -20,6 +21,7 @@ class HiveNetVision(nn.Module):
                                               T.ToTensor()])
         self.map_history = None
         self.frames_per_input = frames_per_input
+        self._input_shape = input_shape
         self.map_history_shape = (
             1, self.frames_per_input, image_compressed_size[0], image_compressed_size[1])
 
@@ -42,7 +44,7 @@ class HiveNetVision(nn.Module):
 
     def forward(self, map_image):
         map_image = Image.frombytes(
-            mode='RGB', size=(720, 280), data=map_image)
+            mode='RGB', size=self._input_shape, data=map_image)
         x = self.process_image_input(map_image).to(device)
 
         if self.map_history is None:

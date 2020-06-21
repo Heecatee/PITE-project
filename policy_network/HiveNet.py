@@ -29,6 +29,8 @@ class HiveNet(nn.Module):
 
         self.value_hidden1 = nn.Linear(in_features=vision_net_output + time_steps_stored * self.num_of_thresholds,
                                        out_features=hidden_layer_size).to(device)
+        self.value_hidden2 = nn.Linear(in_features=hidden_layer_size,
+                                       out_features=hidden_layer_size).to(device)
         self.value_output = nn.Linear(in_features=hidden_layer_size,
                                       out_features=1).to(device)
 
